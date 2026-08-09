@@ -1,0 +1,77 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+app-example
+
+# generated native folders
+/ios
+/android
+
+# Local build and package caches
+.gradle-cache/
+.gradle-photo-share/
+.npm-cache/
+file-backups/
+
+# Generated reports, logs and temporary work
+*.log
+ProjectTree.txt
+app/ProjectTree.txt
+work-test-export/
+dist/
+
+# Archives and install/build files are published separately
+*.apk
+*.aab
+*.zip
+*.jar
+*.pdf
+
+# Local-only helper and editor files
+.claude/
+.vscode/
+*.url
+Task
+npx
+checkpoint*.txt
+ShopShareFiles.txt
+
+# Old copied or superseded project files
+* - Copy.ts
+* - Copy.tsx
+ShopWithEzz_FINAL_Documents_*/

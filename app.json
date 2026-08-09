@@ -1,0 +1,80 @@
+{
+  "expo": {
+    "name": "ShopWithEzz",
+    "slug": "ShopWithEzzV1Final",
+    "version": "1.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/shopwithezz-icon.png",
+    "scheme": "shopwithezz",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.lalli61.shopwithezzv2",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "Allow ShopWithEzz to convert spoken shopping items into text.",
+        "NSMicrophoneUsageDescription": "Allow ShopWithEzz to use the microphone for adding and searching shopping items.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/images/shopwithezz-icon.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.lalli61.ShopWithEzzV2",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/shopwithezz-icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow ShopWithEzz to use the microphone for adding and searching shopping items.",
+          "speechRecognitionPermission": "Allow ShopWithEzz to convert spoken shopping items into text.",
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox",
+            "com.google.android.tts"
+          ]
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/shopwithezz-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#FFFFFF"
+        }
+      ],
+      [
+        "expo-share-intent",
+        {
+          "androidIntentFilters": [
+            "image/*"
+          ],
+          "disableIOS": true
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5ded26d1-9d9a-4dca-9f0f-0c8f5687ab80"
+      }
+    }
+  }
+}

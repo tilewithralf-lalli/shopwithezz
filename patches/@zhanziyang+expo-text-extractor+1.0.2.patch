@@ -1,0 +1,52 @@
+diff --git a/node_modules/@zhanziyang/expo-text-extractor/android/src/main/java/expo/modules/textextractor/ExpoTextExtractorModule.kt b/node_modules/@zhanziyang/expo-text-extractor/android/src/main/java/expo/modules/textextractor/ExpoTextExtractorModule.kt
+index a676ed9..46bff12 100644
+--- a/node_modules/@zhanziyang/expo-text-extractor/android/src/main/java/expo/modules/textextractor/ExpoTextExtractorModule.kt
++++ b/node_modules/@zhanziyang/expo-text-extractor/android/src/main/java/expo/modules/textextractor/ExpoTextExtractorModule.kt
+@@ -121,29 +121,24 @@ class ExpoTextExtractorModule : Module() {
+     AsyncFunction("getSupportedLanguages") { _: String?, promise: Promise ->
+       promise.resolve(availableScripts)
+     }
+-  }
+ 
+-  /**
+-   * Clean up recognizers when the module is destroyed.
+-   */
+-  override fun onDestroy() {
+-    // Close all initialized recognizers to free resources
+-    try {
+-      latinRecognizer.close()
+-    } catch (_: Exception) {}
+-    try {
+-      chineseRecognizer.close()
+-    } catch (_: Exception) {}
+-    try {
+-      devanagariRecognizer.close()
+-    } catch (_: Exception) {}
+-    try {
+-      japaneseRecognizer.close()
+-    } catch (_: Exception) {}
+-    try {
+-      koreanRecognizer.close()
+-    } catch (_: Exception) {}
+-    
+-    super.onDestroy()
++    OnDestroy {
++      // Close all initialized recognizers to free resources
++      try {
++        latinRecognizer.close()
++      } catch (_: Exception) {}
++      try {
++        chineseRecognizer.close()
++      } catch (_: Exception) {}
++      try {
++        devanagariRecognizer.close()
++      } catch (_: Exception) {}
++      try {
++        japaneseRecognizer.close()
++      } catch (_: Exception) {}
++      try {
++        koreanRecognizer.close()
++      } catch (_: Exception) {}
++    }
+   }
+ }
