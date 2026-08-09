@@ -19,7 +19,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {markBackupCompleted} from "../storage/backupReminder";
 
-const TEST_DOWNLOAD_PAGE_URL = "http://127.0.0.1:8765";
+const UPGRADE_PAGE_URL = "https://tilewithralf-lalli.github.io/shopwithezz/";
 
 const USER_NAME_KEY = "shopwithezz-user-name";
 const SESSION_KEY = "shopwithezz-v1-final-session-v1";
@@ -180,10 +180,10 @@ export default function SettingsScreen(){
 
   async function upgradeEarly(){
     try{
-      await Linking.openURL(TEST_DOWNLOAD_PAGE_URL);
+      await Linking.openURL(UPGRADE_PAGE_URL);
     }
     catch{
-      Alert.alert("Open Upgrade Page", "The local test page is not available. Please keep the phone connected to this computer and try again.");
+      Alert.alert("Open Upgrade Page", "The ShopWithEzz page could not be opened. Check your internet connection and try again.");
     }
   }
 

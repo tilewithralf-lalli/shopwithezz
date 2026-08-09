@@ -61,8 +61,8 @@ const SESSION_KEY =
 const USER_NAME_KEY =
   "shopwithezz-user-name";
 
-const TEST_DOWNLOAD_PAGE_URL =
-  "http://127.0.0.1:8765";
+const UPGRADE_PAGE_URL =
+  "https://tilewithralf-lalli.github.io/shopwithezz/";
 
 
 type ShoppingItem = {
@@ -527,10 +527,10 @@ export default function HomeScreen(){
 
   async function openTestUpgradePage(){
     try{
-      await Linking.openURL(TEST_DOWNLOAD_PAGE_URL);
+      await Linking.openURL(UPGRADE_PAGE_URL);
     }
     catch{
-      Alert.alert("Open Upgrade Page", "The local test page is not available. Please keep the phone connected to this computer and try again.");
+      Alert.alert("Open Upgrade Page", "The ShopWithEzz page could not be opened. Check your internet connection and try again.");
     }
   }
 
