@@ -59,7 +59,8 @@
         "expo-share-intent",
         {
           "androidIntentFilters": [
-            "image/*"
+            "image/*",
+            "application/vnd.shopwithezz.list+json"
           ],
           "disableIOS": true
         }

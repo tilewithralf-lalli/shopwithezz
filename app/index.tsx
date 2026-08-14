@@ -54,16 +54,19 @@ import {
   snoozeBackupReminder
 } from "../storage/backupReminder";
 
+import {usePurchase} from "../contexts/PurchaseContext";
+import {
+  ensureLists,
+  getActiveList,
+  selectList
+} from "../storage/shoppingLists";
+
 
 const SESSION_KEY =
   "shopwithezz-v1-final-session-v1";
 
 const USER_NAME_KEY =
   "shopwithezz-user-name";
-
-const UPGRADE_PAGE_URL =
-  "https://tilewithralf-lalli.github.io/shopwithezz/";
-
 
 type ShoppingItem = {
   id:string;
@@ -189,6 +192,8 @@ export default function HomeScreen(){
 
   const router = useRouter();
 
+  const {isPurchasing,isUnlocked,productPrice,purchaseUnlock} = usePurchase();
+
   const [session,setSession] =
     useState<ShoppingSession>(EMPTY_SESSION);
 
@@ -206,6 +211,10 @@ export default function HomeScreen(){
 
   const [trialStatus,setTrialStatus] =
     useState<TrialStatus | null>(null);
+  const [activeListName,setActiveListName] = useState("My Shopping List");
+  const [homeListItemCount,setHomeListItemCount] = useState(0);
+  const [importedList,setImportedList] =
+    useState<{id:string;name:string;itemCount:number} | null>(null);
 
 
   useFocusEffect(
@@ -245,15 +254,39 @@ export default function HomeScreen(){
       const [
         savedSession,
         savedName,
-        savedTrialStatus
+        savedTrialStatus,
+        activeList,
+        savedLists
       ] =
         await Promise.all([
           AsyncStorage.getItem(SESSION_KEY),
           AsyncStorage.getItem(USER_NAME_KEY),
-          loadTrialStatus()
+          loadTrialStatus(),
+          getActiveList(),
+          ensureLists()
         ]);
 
       setTrialStatus(savedTrialStatus);
+      const homeList =
+        savedLists.find(list=>list.name === "My Shopping List")
+        || activeList;
+      setActiveListName(homeList.name);
+      setHomeListItemCount(homeList.session.items.length);
+      const nextImportedList =
+        savedLists
+          .filter(list=>list.id !== homeList.id)
+          .sort((first,second)=>
+            second.createdAt.localeCompare(first.createdAt)
+          )[0];
+      setImportedList(
+        nextImportedList
+          ? {
+              id:nextImportedList.id,
+              name:nextImportedList.name,
+              itemCount:nextImportedList.session.items.length
+            }
+          : null
+      );
 
       const reminder = await observeBackupChanges(
         savedSession || JSON.stringify(EMPTY_SESSION)
@@ -270,13 +303,10 @@ export default function HomeScreen(){
         );
       }
 
-      const nextSession =
-        savedSession
-          ? {
-              ...JSON.parse(savedSession),
-              spent:0
-            }
-          : EMPTY_SESSION;
+      const nextSession = {
+        ...homeList.session,
+        spent:0
+      };
 
       setSession(nextSession);
 
@@ -420,10 +450,17 @@ export default function HomeScreen(){
       "What would you like to do?",
       [
         {
-          text:"Share as PDF",
+          text:"Send as Text",
           onPress:()=>router.push({
             pathname:"/shoppingList",
             params:{action:"share"}
+          })
+        },
+        {
+          text:"Share as PDF",
+          onPress:()=>router.push({
+            pathname:"/shoppingList",
+            params:{action:"pdf"}
           })
         },
         {
@@ -441,23 +478,6 @@ export default function HomeScreen(){
     );
 
   }
-
-  function showHowToUse(){
-
-    Alert.alert(
-      "How to Use ShopWithEzz",
-      [
-        "1. Create or open your shopping list.",
-        "2. Add items by typing, scanning or using the microphone.",
-        "3. Set your budget and add prices as you shop.",
-        "4. Use Shopping Mode and tick off each item you buy.",
-        "5. Use Share List to create a PDF or print your list."
-      ].join("\n\n"),
-      [{text:"Got it"}]
-    );
-
-  }
-
 
   const total =
     session.items.reduce(
@@ -525,16 +545,7 @@ export default function HomeScreen(){
     }
   }
 
-  async function openTestUpgradePage(){
-    try{
-      await Linking.openURL(UPGRADE_PAGE_URL);
-    }
-    catch{
-      Alert.alert("Open Upgrade Page", "The ShopWithEzz page could not be opened. Check your internet connection and try again.");
-    }
-  }
-
-  if(trialStatus?.isExpired){
+  if(trialStatus?.isExpired && !isUnlocked){
     return(
       <View style={styles.trialLockScreen}>
         <View style={styles.trialLockCard}>
@@ -553,12 +564,15 @@ export default function HomeScreen(){
           <TouchableOpacity
             style={styles.trialUnlockButton}
             activeOpacity={0.84}
-            onPress={openTestUpgradePage}
+            onPress={purchaseUnlock}
+            disabled={isPurchasing}
             accessibilityRole="button"
             accessibilityLabel="Unlock ShopWithEzz"
           >
             <Ionicons name="key" size={20} color="#FFFFFF"/>
-            <Text style={styles.trialUnlockButtonText}>UNLOCK SHOPWITHEZZ</Text>
+            <Text style={styles.trialUnlockButtonText}>
+              {isPurchasing ? "OPENING GOOGLE PLAY…" : `UNLOCK FOR ${productPrice}`}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.trialFeedbackButton}
@@ -637,117 +651,42 @@ export default function HomeScreen(){
           <Text style={styles.settingsButtonText}>Settings</Text>
         </TouchableOpacity>
 
-        <View style={[
-          styles.trialCard,
-          trialStatus?.isExpired && styles.trialCardExpired
-        ]}>
-          <Ionicons
-            name={trialStatus?.isExpired ? "time" : "sparkles"}
-            size={20}
-            color={trialStatus?.isExpired ? "#9F2D26" : "#426047"}
-          />
-          <View style={styles.trialText}>
-            <Text style={[
-              styles.trialTitle,
-              trialStatus?.isExpired && styles.trialTitleExpired
-            ]}>
-              {__DEV__ ? "TEST TRIAL" : "31-DAY BETA TRIAL"}
-            </Text>
-            <Text style={styles.trialDetail}>
-              {trialStatus?.isExpired
-                ? "Expired — lock-screen testing is next"
-                : trialTimeText}
-            </Text>
-          </View>
-        </View>
-
-
         <View style={styles.greetingCard}>
-
           <View style={styles.greetingTop}>
-
             <View style={styles.greetingTextBlock}>
-
-              <Text style={styles.eyebrow}>
-                WELCOME BACK
-              </Text>
-
-              <Text style={styles.hello}>
-                Hi, {name} 👋
-              </Text>
-
+              <Text style={styles.eyebrow}>WELCOME BACK</Text>
+              <Text style={styles.hello}>Hi, {name} 👋</Text>
             </View>
-
-            <TouchableOpacity
-              style={styles.changeNameButton}
-              onPress={openNameEditor}
-              accessibilityRole="button"
-              accessibilityLabel="Change name"
-            >
-
-              <Ionicons
-                name="pencil-outline"
-                size={16}
-                color="#6F806A"
-              />
-
+            <TouchableOpacity style={styles.changeNameButton} onPress={openNameEditor} accessibilityRole="button" accessibilityLabel="Change name">
+              <Ionicons name="pencil-outline" size={16} color="#6F806A" />
             </TouchableOpacity>
-
           </View>
-
-          <Text style={styles.welcome}>
-            Everything you need is ready in one place.
-          </Text>
-
+          <Text style={styles.welcome}>Everything you need is ready in one place.</Text>
         </View>
 
-
-        <View style={styles.sectionHeading}>
-
-          <Text style={styles.sectionTitle}>
-            Shopping budget
-          </Text>
-
-          <Text style={styles.sectionHint}>
-            Change it anytime
-          </Text>
-
-        </View>
-
-
-        <View style={styles.budgetRow}>
-
-          <View style={styles.moneyInputBox}>
-
-            <Text style={styles.dollar}>
-              $
-            </Text>
-
-            <TextInput
-              style={styles.moneyInput}
-              value={budgetInput}
-              onChangeText={setBudgetInput}
-              placeholder="0.00"
-              placeholderTextColor="#A79A93"
-              keyboardType="decimal-pad"
-              selectTextOnFocus
-            />
-
+        <TouchableOpacity
+          style={styles.listButton}
+          onPress={async()=>{
+            const lists = await ensureLists();
+            const homeList =
+              lists.find(list=>list.name === "My Shopping List")
+              || lists[0];
+            await selectList(homeList.id);
+            router.push("/shoppingList");
+          }}
+          activeOpacity={0.86}
+          accessibilityRole="button"
+          accessibilityLabel="Open shopping list"
+        >
+          <View style={styles.listIconBox}>
+            <Ionicons name="bag-handle-outline" size={25} color="#536650" />
           </View>
-
-          <TouchableOpacity
-            style={styles.saveButton}
-            onPress={saveBudget}
-            activeOpacity={0.84}
-          >
-
-            <Text style={styles.saveText}>
-              Save
-            </Text>
-
-          </TouchableOpacity>
-
-        </View>
+          <View style={styles.listDetails}>
+            <Text style={styles.listTitle}>{activeListName}</Text>
+            <Text style={styles.listSubtitle}>{homeListItemCount} items · Ready when you are</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={21} color="#536650" />
+        </TouchableOpacity>
 
 
         <View style={styles.summaryCard}>
@@ -779,6 +718,25 @@ export default function HomeScreen(){
 
             </View>
 
+          </View>
+
+          <View style={styles.inlineBudgetRow}>
+            <Text style={styles.inlineBudgetLabel}>YOUR BUDGET</Text>
+            <View style={styles.inlineBudgetInputBox}>
+              <Text style={styles.inlineBudgetDollar}>$</Text>
+              <TextInput
+                style={styles.inlineBudgetInput}
+                value={budgetInput}
+                onChangeText={setBudgetInput}
+                placeholder="0.00"
+                placeholderTextColor="#A79A93"
+                keyboardType="decimal-pad"
+                returnKeyType="done"
+                onSubmitEditing={saveBudget}
+                onEndEditing={saveBudget}
+                selectTextOnFocus
+              />
+            </View>
           </View>
 
           <View style={styles.summaryNumbers}>
@@ -836,47 +794,6 @@ export default function HomeScreen(){
         </View>
 
 
-        <TouchableOpacity
-          style={styles.listButton}
-          onPress={()=>
-            router.push("/shoppingList")
-          }
-          activeOpacity={0.86}
-          accessibilityRole="button"
-          accessibilityLabel="Open shopping list"
-        >
-
-          <View style={styles.listIconBox}>
-
-            <Ionicons
-              name="bag-handle-outline"
-              size={25}
-              color="#536650"
-            />
-
-          </View>
-
-          <View style={styles.listDetails}>
-
-            <Text style={styles.listTitle}>
-              Shopping List
-            </Text>
-
-            <Text style={styles.listSubtitle}>
-              {session.items.length} items · Ready when you are
-            </Text>
-
-          </View>
-
-          <Ionicons
-            name="chevron-forward"
-            size={21}
-            color="#536650"
-          />
-
-        </TouchableOpacity>
-
-
         <View style={styles.quickHeadingRow}>
 
           <View>
@@ -891,8 +808,6 @@ export default function HomeScreen(){
 
 
         <View style={styles.quickGrid}>
-
-
 
           <TouchableOpacity
             style={[
@@ -979,11 +894,10 @@ export default function HomeScreen(){
           <TouchableOpacity
             style={[
               styles.quickCard,
-              styles.howToCard,
-              styles.hiddenTool
+              styles.howToCard
             ]}
             activeOpacity={0.84}
-            onPress={showHowToUse}
+            onPress={()=>router.push("/howToUse")}
             accessibilityRole="button"
             accessibilityLabel="How to use ShopWithEzz"
           >
@@ -1063,6 +977,14 @@ export default function HomeScreen(){
 
         </View>
 
+
+        <View style={[styles.trialCard,trialStatus?.isExpired && styles.trialCardExpired]}>
+          <Ionicons name={trialStatus?.isExpired ? "time" : "sparkles"} size={17} color={trialStatus?.isExpired ? "#9F2D26" : "#426047"} />
+          <View style={styles.trialText}>
+            <Text style={[styles.trialTitle,trialStatus?.isExpired && styles.trialTitleExpired]}>{__DEV__ ? "TEST TRIAL" : "31-DAY BETA TRIAL"}</Text>
+            <Text style={styles.trialDetail}>{trialStatus?.isExpired ? "Expired" : trialTimeText}</Text>
+          </View>
+        </View>
 
       </ScrollView>
 
@@ -1163,8 +1085,8 @@ const styles = StyleSheet.create({
 
   content:{
     paddingHorizontal:18,
-    paddingTop:47,
-    paddingBottom:36
+    paddingTop:20,
+    paddingBottom:20
   },
 
   brandRow:{
@@ -1204,9 +1126,9 @@ const styles = StyleSheet.create({
 
   greetingCard:{
     marginTop:14,
-    padding:13,
+    padding:10,
     borderRadius:18,
-    backgroundColor:"#F3E7E2"
+    backgroundColor:"#E6EEE2"
   },
 
   greetingTop:{
@@ -1227,16 +1149,16 @@ const styles = StyleSheet.create({
 
   hello:{
     marginTop:3,
-    fontSize:22,
+    fontSize:20,
     fontWeight:"900",
     letterSpacing:-0.6,
     color:"#463E3B"
   },
 
   welcome:{
-    marginTop:5,
-    fontSize:12,
-    lineHeight:17,
+    marginTop:4,
+    fontSize:11,
+    lineHeight:15,
     color:"#73635C",
     textAlign:"center"
   },
@@ -1324,9 +1246,9 @@ const styles = StyleSheet.create({
   },
 
   summaryCard:{
-    marginTop:10,
-    padding:13,
-    borderRadius:18,
+    marginTop:6,
+    padding:7,
+    borderRadius:14,
     backgroundColor:"#FFFFFF",
     borderWidth:1,
     borderColor:"#EEE7E0",
@@ -1407,6 +1329,19 @@ const styles = StyleSheet.create({
     flexDirection:"row",
     justifyContent:"space-between"
   },
+  inlineBudgetRow:{
+    marginTop:6,
+    marginBottom:6,
+    padding:6,
+    borderRadius:10,
+    backgroundColor:"#F6F3EE",
+    flexDirection:"row",
+    alignItems:"center"
+  },
+  inlineBudgetLabel:{flex:1,fontSize:11,fontWeight:"900",letterSpacing:1,color:"#786D66"},
+  inlineBudgetInputBox:{width:130,height:42,borderRadius:11,backgroundColor:"#FFFFFF",flexDirection:"row",alignItems:"center",paddingHorizontal:10},
+  inlineBudgetDollar:{fontSize:18,fontWeight:"900",color:"#6E8B68",marginRight:5},
+  inlineBudgetInput:{flex:1,fontSize:18,fontWeight:"900",color:"#403A36",padding:0},
 
   summaryMetric:{
     flex:1,
@@ -1473,9 +1408,10 @@ const styles = StyleSheet.create({
 
   listButton:{
     marginTop:10,
-    padding:10,
+    padding:13,
+    minHeight:148,
     borderRadius:17,
-    backgroundColor:"#E6EEE2",
+    backgroundColor:"#F3E7E2",
     borderWidth:1,
     borderColor:"#D4E0D0",
     flexDirection:"row",
@@ -1483,8 +1419,8 @@ const styles = StyleSheet.create({
   },
 
   listIconBox:{
-    width:40,
-    height:40,
+    width:58,
+    height:58,
     borderRadius:13,
     backgroundColor:"#FFFFFF",
     alignItems:"center",
@@ -1497,20 +1433,20 @@ const styles = StyleSheet.create({
   },
 
   listTitle:{
-    fontSize:16,
+    fontSize:18,
     fontWeight:"900",
     color:"#465344"
   },
 
   listSubtitle:{
     marginTop:3,
-    fontSize:10,
+    fontSize:11,
     fontWeight:"600",
     color:"#7C8D78"
   },
 
   quickHeadingRow:{
-    marginTop:16,
+    marginTop:10,
     marginBottom:7,
     flexDirection:"row",
     alignItems:"flex-end",
@@ -1765,9 +1701,9 @@ const styles = StyleSheet.create({
     flexDirection:"row",
     alignItems:"center",
     marginTop:8,
-    paddingVertical:10,
-    paddingHorizontal:13,
-    borderRadius:16,
+    paddingVertical:7,
+    paddingHorizontal:11,
+    borderRadius:13,
     backgroundColor:"#E8F0E6",
     borderWidth:1,
     borderColor:"#D4E2D2"

@@ -1,0 +1,11 @@
+SHOPWITHEZZ DOWNLOAD FOLDER
+
+When every test is finished and the final Android app is approved, place the approved download file in this folder.
+
+Do not place a development build here.
+Do not place an unapproved build here.
+
+Planned approved filename:
+ShopWithEzz-v1.0.0-Beta.apk
+
+The public page download button will be connected to that file only after final approval.

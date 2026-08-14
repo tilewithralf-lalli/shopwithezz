@@ -18,6 +18,10 @@ import {
     useShareIntentContext
 } from "expo-share-intent";
 
+import {PurchaseProvider} from "../contexts/PurchaseContext";
+
+const LIST_MIME = "application/vnd.shopwithezz.list+json";
+
 
 function IncomingShareRouter(){
 
@@ -37,8 +41,15 @@ function IncomingShareRouter(){
       file=>file.mimeType.startsWith("image/")
     );
 
+  const shoppingList =
+    shareIntent.files?.find(
+      file=>
+        file.mimeType === LIST_MIME
+        || file.fileName?.toLowerCase().endsWith(".shopwithezz")
+    );
+
   const incomingPath =
-    image?.path;
+    shoppingList?.path || image?.path;
 
   useEffect(()=>{
 
@@ -54,13 +65,14 @@ function IncomingShareRouter(){
 
     handledPath.current = incomingPath;
     router.replace(
-      "/importPhoto" as Href
+      (shoppingList ? "/importList" : "/importPhoto") as Href
     );
 
   },[
     hasShareIntent,
     incomingPath,
     image,
+    shoppingList,
     router
   ]);
 
@@ -75,6 +87,10 @@ export default function RootLayout(){
     Platform.OS === "android";
 
   return (
+
+    <PurchaseProvider>
+
+    {
 
     isAndroid ? (
 
@@ -116,6 +132,10 @@ export default function RootLayout(){
       </Stack>
 
     )
+
+    }
+
+    </PurchaseProvider>
 
   );
 

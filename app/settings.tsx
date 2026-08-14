@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import {
   Alert,
   Linking,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -18,8 +19,7 @@ import {useRouter} from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {markBackupCompleted} from "../storage/backupReminder";
-
-const UPGRADE_PAGE_URL = "https://tilewithralf-lalli.github.io/shopwithezz/";
+import {usePurchase} from "../contexts/PurchaseContext";
 
 const USER_NAME_KEY = "shopwithezz-user-name";
 const SESSION_KEY = "shopwithezz-v1-final-session-v1";
@@ -30,14 +30,26 @@ type BackupFile = {
   format:string;
   version:number;
   createdAt:string;
+  label?:string;
   data:Record<string,string>;
 };
 
 export default function SettingsScreen(){
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const {isLoading:isPurchaseLoading,isPurchasing,isUnlocked,productPrice,purchaseUnlock,restorePurchase} = usePurchase();
   const [name,setName] = useState("");
   const [savingName,setSavingName] = useState(false);
+  const [backupName,setBackupName] = useState("");
+  const [backupNameVisible,setBackupNameVisible] = useState(false);
+
+  function leaveSettings(){
+    if(router.canGoBack()){
+      router.back();
+      return;
+    }
+    router.replace("/");
+  }
 
   useEffect(()=>{
     AsyncStorage.getItem(USER_NAME_KEY)
@@ -75,27 +87,41 @@ export default function SettingsScreen(){
     );
   }
 
+  function startBackup(){
+    setBackupName("");
+    setBackupNameVisible(true);
+  }
+
   async function createBackup(){
     try{
+      const cleanLabel = backupName.trim();
       const backup:BackupFile = {
         format:BACKUP_FORMAT,
         version:1,
         createdAt:new Date().toISOString(),
+        ...(cleanLabel ? {label:cleanLabel} : {}),
         data:await appData()
       };
       const stamp = backup.createdAt
         .slice(0,19)
         .replace(/[T:]/g,"-");
+      const safeLabel = cleanLabel
+        .replace(/[^a-z0-9]+/gi,"-")
+        .replace(/^-+|-+$/g,"")
+        .slice(0,40);
+      const fileName = safeLabel
+        ? `ShopWithEzz-${safeLabel}-${stamp}.json`
+        : `ShopWithEzz-backup-${stamp}.json`;
       const folder = await Directory.pickDirectoryAsync();
       const file = folder.createFile(
-        `ShopWithEzz-backup-${stamp}.json`,
+        fileName,
         "application/json"
       );
       file.write(JSON.stringify(backup,null,2));
       await markBackupCompleted(backup.data[SESSION_KEY] || "");
       Alert.alert(
         "Backup Saved",
-        `ShopWithEzz-backup-${stamp}.json was saved in your chosen folder.`
+        `${fileName} was saved in your chosen folder.`
       );
     }
     catch{
@@ -178,15 +204,6 @@ export default function SettingsScreen(){
     }
   }
 
-  async function upgradeEarly(){
-    try{
-      await Linking.openURL(UPGRADE_PAGE_URL);
-    }
-    catch{
-      Alert.alert("Open Upgrade Page", "The ShopWithEzz page could not be opened. Check your internet connection and try again.");
-    }
-  }
-
   const Row = ({icon,title,detail,onPress,danger=false}:{
     icon:keyof typeof Ionicons.glyphMap;
     title:string;
@@ -213,7 +230,7 @@ export default function SettingsScreen(){
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={()=>router.back()} accessibilityLabel="Go back">
+          <TouchableOpacity style={styles.backButton} onPress={leaveSettings} accessibilityLabel="Go back">
             <Ionicons name="chevron-back" size={25} color="#294A31"/>
           </TouchableOpacity>
           <View>
@@ -245,29 +262,32 @@ export default function SettingsScreen(){
         <Text style={styles.sectionLabel}>UPGRADE ANY TIME</Text>
         <View style={styles.card}>
           <Row
-            icon="sparkles-outline"
-            title="Unlock ShopWithEzz"
-            detail="Upgrade now for one payment of AUD $29.99 — no subscription"
-            onPress={upgradeEarly}
+            icon={isUnlocked ? "checkmark-circle-outline" : "sparkles-outline"}
+            title={isUnlocked ? "Full Version Unlocked" : "Unlock ShopWithEzz"}
+            detail={isUnlocked
+              ? "Your permanent Google Play unlock is active"
+              : `${isPurchasing ? "Opening Google Play…" : `One payment of ${productPrice}`} — no subscription`}
+            onPress={purchaseUnlock}
+          />
+          <View style={styles.divider}/>
+          <Row
+            icon="refresh-circle-outline"
+            title="Restore Purchase"
+            detail={isPurchaseLoading ? "Checking Google Play…" : "Restore an unlock bought with this Google account"}
+            onPress={restorePurchase}
           />
         </View>
 
         <Text style={styles.sectionLabel}>EXTRAS</Text>
         <View style={styles.card}>
           <Row icon="mic-outline" title="Hands-Free Commands" detail="See voice commands and shopping mode" onPress={()=>router.push("/handsFree")}/>
-          <View style={styles.divider}/>
-          <Row icon="document-text-outline" title="Import a List" detail="Bring a typed shopping list into the app" onPress={()=>router.push("/importList")}/>
-          <View style={styles.divider}/>
-          <Row icon="share-social-outline" title="Share List" detail="Share your shopping list as PDF or print it" onPress={()=>router.push({pathname:"/shoppingList",params:{action:"share"}})}/>
-          <View style={styles.divider}/>
-          <Row icon="help-circle-outline" title="How to Use" detail="Step-by-step help and speaking commands" onPress={()=>router.push("/howToUse")}/>
         </View>
 
         <Text style={styles.sectionLabel}>HELP & DATA</Text>
         <View style={styles.card}>
           <Row icon="chatbubble-ellipses-outline" title="Send Feedback" detail="Open your email app with app details" onPress={sendFeedback}/>
           <View style={styles.divider}/>
-          <Row icon="cloud-upload-outline" title="Backup" detail="Save a copy of all ShopWithEzz data" onPress={createBackup}/>
+          <Row icon="cloud-upload-outline" title="Backup" detail="Save a named copy of all ShopWithEzz data" onPress={startBackup}/>
           <View style={styles.divider}/>
           <Row icon="cloud-download-outline" title="Restore from Backup" detail="Replace current data from a backup file" onPress={chooseRestoreFile}/>
         </View>
@@ -294,6 +314,51 @@ export default function SettingsScreen(){
         </View>
 
       </ScrollView>
+
+      <Modal
+        visible={backupNameVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={()=>setBackupNameVisible(false)}
+      >
+        <View style={styles.backupModalBackdrop}>
+          <View style={styles.backupModalCard}>
+            <Text style={styles.backupModalTitle}>Name Your Backup</Text>
+            <Text style={styles.backupModalHint}>For example: Before Saturday shop</Text>
+            <TextInput
+              style={styles.backupModalInput}
+              value={backupName}
+              onChangeText={setBackupName}
+              placeholder="Optional backup name"
+              placeholderTextColor="#8A998C"
+              autoFocus
+              maxLength={40}
+              returnKeyType="done"
+              onSubmitEditing={()=>{
+                setBackupNameVisible(false);
+                void createBackup();
+              }}
+            />
+            <View style={styles.backupModalActions}>
+              <TouchableOpacity
+                style={styles.backupCancelButton}
+                onPress={()=>setBackupNameVisible(false)}
+              >
+                <Text style={styles.backupCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.backupContinueButton}
+                onPress={()=>{
+                  setBackupNameVisible(false);
+                  void createBackup();
+                }}
+              >
+                <Text style={styles.backupContinueText}>Choose Folder</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -333,4 +398,14 @@ const styles = StyleSheet.create({
   ,footerDivider:{width:48,height:1,marginTop:11,backgroundColor:"#CBD6CA"}
   ,footerBrand:{marginTop:11,fontSize:12,fontWeight:"900",color:"#2D4031",textAlign:"center"}
   ,footerMotto:{marginTop:5,fontSize:11,fontWeight:"900",color:"#526357"}
+  ,backupModalBackdrop:{flex:1,justifyContent:"center",padding:24,backgroundColor:"rgba(24,43,30,0.48)"}
+  ,backupModalCard:{padding:22,borderRadius:22,backgroundColor:"#F7F4EF"}
+  ,backupModalTitle:{fontSize:23,fontWeight:"900",color:"#273D2C"}
+  ,backupModalHint:{marginTop:5,fontSize:12,color:"#728074"}
+  ,backupModalInput:{marginTop:16,paddingHorizontal:14,paddingVertical:13,borderRadius:13,backgroundColor:"#FFFFFF",borderWidth:1,borderColor:"#DCE5DB",fontSize:16,fontWeight:"700",color:"#273D2C"}
+  ,backupModalActions:{marginTop:15,flexDirection:"row",justifyContent:"flex-end"}
+  ,backupCancelButton:{paddingVertical:12,paddingHorizontal:14}
+  ,backupCancelText:{fontSize:14,fontWeight:"900",color:"#68766A"}
+  ,backupContinueButton:{marginLeft:8,paddingVertical:12,paddingHorizontal:15,borderRadius:12,backgroundColor:"#426B48"}
+  ,backupContinueText:{fontSize:14,fontWeight:"900",color:"#FFFFFF"}
 });

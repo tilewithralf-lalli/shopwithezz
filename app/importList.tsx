@@ -9,6 +9,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View
 } from "react-native";
@@ -30,16 +31,15 @@ import {
   useSafeAreaInsets
 } from "react-native-safe-area-context";
 
-import AsyncStorage
-  from "@react-native-async-storage/async-storage";
-
 import {
   useShareIntentContext
 } from "expo-share-intent";
 
+import {
+  createList,
+  selectList
+} from "../storage/shoppingLists";
 
-const SESSION_KEY =
-  "shopwithezz-v1-final-session-v1";
 
 const LIST_MIME =
   "application/vnd.shopwithezz.list+json";
@@ -52,19 +52,6 @@ type ImportedItem = {
   quantity:number;
   barcode?:string;
 };
-
-type ShoppingItem =
-  ImportedItem
-  & {
-    id:string;
-  };
-
-type ShoppingSession = {
-  budget:number;
-  spent?:number;
-  items:ShoppingItem[];
-};
-
 
 export default function ImportListScreen(){
 
@@ -90,6 +77,9 @@ export default function ImportListScreen(){
 
   const [loading,setLoading] =
     useState(true);
+
+  const [listName,setListName] =
+    useState("");
 
   const incoming =
     shareIntent.files?.find(
@@ -195,97 +185,21 @@ export default function ImportListScreen(){
 
   },[incoming?.path,encodedData]);
 
-  async function finishImport(
-    mode:"add" | "replace"
-  ){
-
-    const stored =
-      await AsyncStorage.getItem(
-        SESSION_KEY
-      );
-
-    const current:ShoppingSession =
-      stored
-        ? JSON.parse(stored)
-        : {
-            budget:0,
-            spent:0,
-            items:[]
-          };
-
-    let nextItems:ShoppingItem[];
-
-    if(mode === "replace"){
-      nextItems =
-        items.map((item,index)=>({
-          ...item,
-          id:`shared-${Date.now()}-${index}`
-        }));
-    }else{
-
-      nextItems =
-        [...current.items];
-
-      items.forEach((item,index)=>{
-
-        const match =
-          nextItems.find(
-            existing=>
-              existing.name
-                .trim()
-                .toLowerCase()
-              ===
-              item.name.toLowerCase()
-          );
-
-        if(match){
-          match.quantity =
-            Math.max(1,match.quantity || 1)
-            +
-            item.quantity;
-          if(!match.price && item.price){
-            match.price = item.price;
-          }
-        }else{
-          nextItems.push({
-            ...item,
-            id:`shared-${Date.now()}-${index}`
-          });
-        }
-
-      });
-
+  async function finishImport(){
+    const cleanName = listName.trim();
+    if(!cleanName){
+      Alert.alert("Name Your List", "Please give this imported list a name.");
+      return;
     }
-
-    await AsyncStorage.setItem(
-      SESSION_KEY,
-      JSON.stringify({
-        ...current,
-        items:nextItems
-      })
-    );
+    const imported = await createList(cleanName,{
+      budget:0,
+      spent:0,
+      items:items.map((item,index)=>({...item,id:`shared-${Date.now()}-${index}`}))
+    });
+    await selectList(imported.id);
 
     resetShareIntent();
     router.replace("/shoppingList");
-
-  }
-
-  function confirmReplace(){
-    Alert.alert(
-      "Replace Your Current List?",
-      "Your current items will be replaced. Your budget will stay the same.",
-      [
-        {
-          text:"Cancel",
-          style:"cancel"
-        },
-        {
-          text:"Replace List",
-          style:"destructive",
-          onPress:()=>void finishImport("replace")
-        }
-      ]
-    );
   }
 
   const total =
@@ -314,7 +228,7 @@ export default function ImportListScreen(){
           style={styles.backButton}
           onPress={()=>{
             resetShareIntent();
-            router.replace("/shoppingList");
+            router.replace("/");
           }}
         >
           <Ionicons
@@ -365,6 +279,22 @@ export default function ImportListScreen(){
             </View>
           </View>
 
+          <View style={styles.nameCard}>
+            <Text style={styles.nameLabel}>NAME THIS IMPORTED LIST</Text>
+            <TextInput
+              value={listName}
+              onChangeText={setListName}
+              placeholder="Type a name here — e.g. Saturday BBQ"
+              placeholderTextColor="#8A988E"
+              style={styles.nameInput}
+              maxLength={60}
+              autoFocus
+              returnKeyType="done"
+              onSubmitEditing={()=>void finishImport()}
+            />
+            <Text style={styles.nameHint}>Type the name you want before saving. It will be saved as its own list and your existing lists will not be changed.</Text>
+          </View>
+
           <ScrollView
             style={styles.list}
             contentContainerStyle={styles.listContent}
@@ -411,9 +341,7 @@ export default function ImportListScreen(){
           >
             <TouchableOpacity
               style={styles.addButton}
-              onPress={()=>
-                void finishImport("add")
-              }
+              onPress={()=>void finishImport()}
             >
               <Ionicons
                 name="add-circle-outline"
@@ -421,15 +349,7 @@ export default function ImportListScreen(){
                 color="#FFFFFF"
               />
               <Text style={styles.addButtonText}>
-                Add to My List
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.replaceButton}
-              onPress={confirmReplace}
-            >
-              <Text style={styles.replaceButtonText}>
-                Replace My List
+                Save as Separate List
               </Text>
             </TouchableOpacity>
           </View>
@@ -508,6 +428,17 @@ const styles = StyleSheet.create({
     height:42,
     backgroundColor:"#C8DDCC"
   },
+  nameCard:{
+    marginBottom:14,
+    padding:14,
+    borderRadius:18,
+    backgroundColor:"#FFFFFF",
+    borderWidth:1,
+    borderColor:"#DCE7DE"
+  },
+  nameLabel:{color:"#476454",fontSize:11,fontWeight:"900",letterSpacing:1},
+  nameInput:{marginTop:8,minHeight:46,borderRadius:13,paddingHorizontal:12,backgroundColor:"#F4F8F4",fontSize:16,fontWeight:"700",color:"#26362D"},
+  nameHint:{marginTop:8,fontSize:12,lineHeight:17,fontWeight:"600",color:"#67806E"},
   list:{
     flex:1
   },

@@ -8,6 +8,7 @@ import React, {
 import {
     Alert,
     Keyboard,
+    Modal,
     ScrollView,
     Share,
     StyleSheet,
@@ -35,6 +36,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import * as Print from "expo-print";
+import * as Sharing from "expo-sharing";
 
 import * as Speech from "expo-speech";
 
@@ -48,6 +50,14 @@ import {
     normaliseCategory,
     ShoppingCategory
 } from "../constants/shoppingCategories";
+import {
+  ensureLists,
+  deleteList,
+  getActiveList,
+  saveActiveSession,
+  selectList,
+  type ShoppingList as SavedShoppingList
+} from "../storage/shoppingLists";
 
 
 const SESSION_KEY =
@@ -137,6 +147,36 @@ export default function ShoppingListScreen(){
       items:[]
     });
 
+  const [availableLists,setAvailableLists] =
+    useState<SavedShoppingList[]>([]);
+
+  const [activeListId,setActiveListId] =
+    useState("");
+
+  const [listBudgetInput,setListBudgetInput] =
+    useState("");
+
+  const primaryList =
+    availableLists.find(list=>list.name === "My Shopping List")
+    || availableLists[0];
+
+  const newestImportedList =
+    availableLists
+      .filter(list=>list.id !== primaryList?.id)
+      .sort((first,second)=>
+        second.createdAt.localeCompare(first.createdAt)
+      )[0];
+
+  const visibleListTabs =
+    [
+      primaryList,
+      ...availableLists
+        .filter(list=>list.id !== primaryList?.id)
+        .sort((first,second)=>
+          second.createdAt.localeCompare(first.createdAt)
+        )
+    ].filter((list):list is SavedShoppingList => Boolean(list));
+
   const sessionRef =
     useRef<ShoppingSession>(session);
 
@@ -152,6 +192,9 @@ export default function ShoppingListScreen(){
 
   const [quickAddMessage,setQuickAddMessage] =
     useState("");
+
+  const [shareOptionsVisible,setShareOptionsVisible] =
+    useState(false);
 
   const [undoRemoval,setUndoRemoval] =
     useState<UndoRemoval | null>(null);
@@ -181,6 +224,9 @@ export default function ShoppingListScreen(){
   const printActionHandled =
     useRef(false);
 
+  const pdfActionHandled =
+    useRef(false);
+
   useEffect(()=>{
 
     return ()=>{
@@ -204,12 +250,14 @@ export default function ShoppingListScreen(){
 
       shareActionHandled.current = false;
       printActionHandled.current = false;
+      pdfActionHandled.current = false;
 
       loadSession();
 
       return ()=>{
         shareActionHandled.current = false;
         printActionHandled.current = false;
+        pdfActionHandled.current = false;
       };
 
     },[requestedAction])
@@ -282,10 +330,15 @@ export default function ShoppingListScreen(){
 
   async function loadSession(){
 
-    const saved =
-      await AsyncStorage.getItem(
-        SESSION_KEY
-      );
+    const [saved,activeList,lists] =
+      await Promise.all([
+        AsyncStorage.getItem(SESSION_KEY),
+        getActiveList(),
+        ensureLists()
+      ]);
+
+    setAvailableLists(lists);
+    setActiveListId(activeList.id);
 
     if(saved){
       const storedSession =
@@ -340,11 +393,9 @@ export default function ShoppingListScreen(){
 
       sessionRef.current = savedSession;
       setSession(savedSession);
+      setListBudgetInput(String(savedSession.budget || 0));
 
-      await AsyncStorage.setItem(
-        SESSION_KEY,
-        JSON.stringify(savedSession)
-      );
+      await saveActiveSession(savedSession);
 
       if(
         requestedAction === "share"
@@ -366,6 +417,18 @@ export default function ShoppingListScreen(){
         printActionHandled.current = true;
         setTimeout(
           ()=>printShoppingList(savedSession),
+          0
+        );
+      }
+
+      if(
+        requestedAction === "pdf"
+        &&
+        !pdfActionHandled.current
+      ){
+        pdfActionHandled.current = true;
+        setTimeout(
+          ()=>printShoppingList(savedSession,true),
           0
         );
       }
@@ -402,6 +465,41 @@ export default function ShoppingListScreen(){
 
   }
 
+  async function openList(id:string){
+    if(id === activeListId){
+      return;
+    }
+    await selectList(id);
+    await loadSession();
+  }
+
+  function askToDeleteList(list:SavedShoppingList){
+    if(list.name === "My Shopping List"){
+      return;
+    }
+    Alert.alert(
+      "Delete List?",
+      `Delete ${list.name}? This cannot be undone.`,
+      [
+        {text:"Cancel",style:"cancel"},
+        {
+          text:"Delete",
+          style:"destructive",
+          onPress:()=>void deleteSelectedList(list.id)
+        }
+      ]
+    );
+  }
+
+  async function deleteSelectedList(id:string){
+    try{
+      await deleteList(id);
+      await loadSession();
+    }catch{
+      Alert.alert("Could Not Delete List", "Your main shopping list is kept safe.");
+    }
+  }
+
 
   async function saveSession(
     next:ShoppingSession
@@ -412,14 +510,24 @@ export default function ShoppingListScreen(){
 
     sessionSaveQueue.current =
       sessionSaveQueue.current.then(
-        ()=>AsyncStorage.setItem(
-          SESSION_KEY,
-          JSON.stringify(next)
-        )
+        ()=>saveActiveSession(next)
       );
 
     await sessionSaveQueue.current;
 
+  }
+
+  async function saveListBudget(){
+    const value = Number(listBudgetInput.replace(",","."));
+    if(Number.isNaN(value) || value < 0){
+      Alert.alert("Invalid Budget", "Enter a valid budget amount.");
+      return;
+    }
+    await saveSession({
+      ...sessionRef.current,
+      budget:value
+    });
+    setListBudgetInput(String(value));
   }
 
   async function shareShoppingList(
@@ -507,7 +615,8 @@ export default function ShoppingListScreen(){
   }
 
   async function printShoppingList(
-    sessionOverride?:ShoppingSession
+    sessionOverride?:ShoppingSession,
+    asPdf = false
   ){
 
     const currentSession =
@@ -625,6 +734,17 @@ export default function ShoppingListScreen(){
     `;
 
     try{
+      if(asPdf){
+        const file = await Print.printToFileAsync({html});
+        if(!(await Sharing.isAvailableAsync())){
+          throw new Error("Sharing unavailable");
+        }
+        await Sharing.shareAsync(file.uri,{
+          mimeType:"application/pdf",
+          dialogTitle:"Share ShopWithEzz PDF"
+        });
+        return;
+      }
       await Print.printAsync({
         html
       });
@@ -635,6 +755,40 @@ export default function ShoppingListScreen(){
       );
     }
 
+  }
+
+  function showShareOptions(){
+    setShareOptionsVisible(true);
+  }
+
+  async function shareShopWithEzzList(){
+    const currentSession = sessionRef.current;
+    if(!currentSession.items.length){
+      Alert.alert("Nothing To Send Yet", "Add an item to your shopping list first.");
+      return;
+    }
+    try{
+      const listData = JSON.stringify({
+        format:"shopwithezz-list",
+        version:1,
+        items:currentSession.items.map(item=>({
+          name:item.name,
+          price:Number(item.price || 0),
+          purchased:Boolean(item.purchased),
+          quantity:Math.max(1,Number(item.quantity || 1)),
+          barcode:item.barcode
+        }))
+      });
+      const link =
+        "https://tilewithralf-lalli.github.io/shopwithezz/open-list.html#"
+        + encodeURIComponent(listData);
+      await Share.share({
+        title:"ShopWithEzz List",
+        message:`Open this list in ShopWithEzz:\n${link}`
+      });
+    }catch{
+      Alert.alert("Could Not Send Link", "ShopWithEzz could not prepare this link to send.");
+    }
   }
 
   function showListMessage(
@@ -1326,6 +1480,23 @@ export default function ShoppingListScreen(){
   const remaining =
     session.budget - total;
 
+  const budgetUsagePercent =
+    session.budget > 0
+      ? Math.round((total / session.budget) * 100)
+      : total > 0
+        ? 100
+        : 0;
+
+  const budgetBarWidth =
+    Math.min(100,budgetUsagePercent);
+
+  const budgetProgressColor =
+    budgetUsagePercent >= 100
+      ? "#C62828"
+      : budgetUsagePercent >= 75
+        ? "#F9A825"
+        : "#4CAF50";
+
   function compactAmount(
     value:number
   ){
@@ -1348,11 +1519,7 @@ export default function ShoppingListScreen(){
         </View>
 
         {filteredItems.length ? (
-          <ScrollView
-            style={styles.previewListScroll}
-            nestedScrollEnabled
-            showsVerticalScrollIndicator
-          >
+          <View>
             {filteredItems.map(item=>(
               <View
                 key={item.id}
@@ -1454,7 +1621,7 @@ export default function ShoppingListScreen(){
 
               </View>
             ))}
-          </ScrollView>
+          </View>
         ) : (
           <View style={styles.previewEmpty}>
             <Text style={styles.previewEmptyText}>
@@ -1470,20 +1637,28 @@ export default function ShoppingListScreen(){
 
   return(
 
-    <View
-      style={[
-        styles.screen,
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={[
+        styles.scrollContent,
         {
           paddingBottom:
             Math.max(insets.bottom,16)
         }
       ]}
+      showsVerticalScrollIndicator
     >
 
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={()=>router.back()}
+          onPress={()=>{
+            if(router.canGoBack()){
+              router.back();
+              return;
+            }
+            router.replace("/");
+          }}
         >
           <Text style={styles.backText}>‹</Text>
         </TouchableOpacity>
@@ -1496,7 +1671,9 @@ export default function ShoppingListScreen(){
                 ? "Collected"
                 : listView === "all"
                   ? "All Items"
-                  : "Shopping List"}
+                  : availableLists.find(list=>list.id === activeListId)?.name === "My Shopping List"
+                    ? "My List"
+                    : availableLists.find(list=>list.id === activeListId)?.name || "My List"}
           </Text>
           <Text style={styles.subtitle}>
             Unpriced first
@@ -1510,6 +1687,35 @@ export default function ShoppingListScreen(){
         </View>
 
       </View>
+
+      {isOverview && visibleListTabs.length > 1 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.listTabs}
+        >
+          {visibleListTabs.map(list=>{
+            const isActive = list.id === activeListId;
+            const label =
+              list.name === "My Shopping List"
+                ? "My List"
+                : list.name;
+            return (
+              <TouchableOpacity
+                key={list.id}
+                style={[styles.listTab,isActive && styles.listTabActive]}
+                onPress={()=>void openList(list.id)}
+                onLongPress={()=>askToDeleteList(list)}
+                delayLongPress={450}
+              >
+                <Text style={[styles.listTabText,isActive && styles.listTabTextActive]}>
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      )}
 
       {isOverview && (
       <>
@@ -1632,34 +1838,22 @@ export default function ShoppingListScreen(){
         </View>
       )}
 
-      <TouchableOpacity
-        style={styles.readCollectedButton}
-        onPress={readCollectedItems}
-        accessibilityRole="button"
-        accessibilityLabel="Read my collected"
-      >
-        <Ionicons
-          name="volume-high-outline"
-          size={19}
-          color="#2E7D32"
-        />
-        <View style={styles.readCollectedDetails}>
-          <Text style={styles.readCollectedTitle}>
-            Read Collected
-          </Text>
-          <Text style={styles.readCollectedHint}>
-            Tap here or say Read my collected into the microphone
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-
       <View style={styles.summaryCard}>
         <View style={styles.summary}>
           <Text style={styles.summaryLabel}>BUDGET</Text>
-          <Text style={styles.summaryValue}>
-            ${session.budget.toFixed(2)}
-          </Text>
+          <View style={styles.listBudgetBox}>
+            <Text style={styles.listBudgetDollar}>$</Text>
+            <TextInput
+              style={styles.listBudgetInput}
+              value={listBudgetInput}
+              onChangeText={setListBudgetInput}
+              keyboardType="decimal-pad"
+              returnKeyType="done"
+              onSubmitEditing={()=>void saveListBudget()}
+              onEndEditing={()=>void saveListBudget()}
+              accessibilityLabel="Budget for this list"
+            />
+          </View>
         </View>
         <View style={styles.summaryLine}/>
         <View style={styles.summary}>
@@ -1687,17 +1881,20 @@ export default function ShoppingListScreen(){
       <View style={styles.progressCard}>
         <View style={styles.progressHeader}>
           <Text style={styles.progressTitle}>
-            Trip progress
+            Budget progress
           </Text>
-          <Text style={styles.progressValue}>
-            {progressPercent}%
+          <Text style={[styles.progressValue,{color:budgetProgressColor}]}> 
+            {budgetUsagePercent}%
           </Text>
         </View>
         <View style={styles.progressTrack}>
           <View
             style={[
               styles.progressFill,
-              {width:`${progressPercent}%`}
+              {
+                width:`${budgetBarWidth}%`,
+                backgroundColor:budgetProgressColor
+              }
             ]}
           />
         </View>
@@ -1748,7 +1945,7 @@ export default function ShoppingListScreen(){
 
       <TouchableOpacity
         style={styles.shareListButton}
-        onPress={shareShoppingList}
+        onPress={showShareOptions}
         accessibilityRole="button"
         accessibilityLabel="Share shopping list"
       >
@@ -1808,6 +2005,22 @@ export default function ShoppingListScreen(){
 
       </>
       )}
+
+      <TouchableOpacity
+        style={styles.shareListButton}
+        onPress={showShareOptions}
+        accessibilityRole="button"
+        accessibilityLabel="Share shopping list"
+      >
+        <View style={styles.shareListIcon}>
+          <Ionicons name="share-social-outline" size={18} color="#FFFFFF" />
+        </View>
+        <View style={styles.shareListDetails}>
+          <Text style={styles.shareListTitle}>Share List</Text>
+          <Text style={styles.shareListHint}>Text, PDF or print</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={17} color="#607D6B" />
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.scanBar}
@@ -1967,7 +2180,82 @@ export default function ShoppingListScreen(){
       </>
       )}
 
-    </View>
+      <Modal
+        visible={shareOptionsVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={()=>setShareOptionsVisible(false)}
+      >
+        <View style={styles.shareSheetBackdrop}>
+          <View
+            style={[
+              styles.shareSheet,
+              {
+                paddingBottom:
+                  Math.max(insets.bottom + 16,84)
+              }
+            ]}
+          >
+            <Text style={styles.shareSheetTitle}>Share Shopping List</Text>
+            <Text style={styles.shareSheetHint}>
+              Choose how you would like to send or use this list.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.shareSheetOption}
+              onPress={()=>{
+                setShareOptionsVisible(false);
+                void shareShoppingList();
+              }}
+            >
+              <Ionicons name="chatbubble-outline" size={21} color="#2E7D32" />
+              <Text style={styles.shareSheetOptionText}>Send as Text</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.shareSheetOption}
+              onPress={()=>{
+                setShareOptionsVisible(false);
+                void printShoppingList(undefined,true);
+              }}
+            >
+              <Ionicons name="document-outline" size={21} color="#2E7D32" />
+              <Text style={styles.shareSheetOptionText}>Share as PDF</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.shareSheetOption}
+              onPress={()=>{
+                setShareOptionsVisible(false);
+                void printShoppingList();
+              }}
+            >
+              <Ionicons name="print-outline" size={21} color="#2E7D32" />
+              <Text style={styles.shareSheetOptionText}>Print</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.shareSheetOption}
+              onPress={()=>{
+                setShareOptionsVisible(false);
+                void shareShopWithEzzList();
+              }}
+            >
+              <Ionicons name="link-outline" size={21} color="#2E7D32" />
+              <Text style={styles.shareSheetOptionText}>Send ShopWithEzz Link</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.shareSheetCancel}
+              onPress={()=>setShareOptionsVisible(false)}
+            >
+              <Text style={styles.shareSheetCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+    </ScrollView>
 
   );
 
@@ -1975,13 +2263,19 @@ export default function ShoppingListScreen(){
 
 
 const styles = StyleSheet.create({
-  screen:{flex:1,backgroundColor:"#FBF7F2",paddingHorizontal:18,paddingTop:46,paddingBottom:18},
+  screen:{flex:1,backgroundColor:"#FBF7F2"},
+  scrollContent:{paddingHorizontal:18,paddingTop:46},
   header:{flexDirection:"row",alignItems:"center"},
   backButton:{width:46,height:46,borderRadius:15,backgroundColor:"#E6EEE2",alignItems:"center",justifyContent:"center"},
   backText:{marginTop:-4,fontSize:38,color:"#1B5E20"},
   headerDetails:{flex:1,marginLeft:12},
   title:{fontSize:25,fontWeight:"900",color:"#173B25"},
   subtitle:{marginTop:2,fontSize:11,fontWeight:"700",color:"#78907D"},
+  listTabs:{marginTop:11,paddingRight:8,flexDirection:"row"},
+  listTab:{minWidth:126,minHeight:45,marginRight:7,paddingHorizontal:12,borderRadius:12,backgroundColor:"#E6EEE2",borderWidth:1,borderColor:"#D4E0D0",alignItems:"center",justifyContent:"center"},
+  listTabActive:{backgroundColor:"#2E7D32",borderColor:"#2E7D32"},
+  listTabText:{fontSize:12,fontWeight:"900",color:"#40503F"},
+  listTabTextActive:{color:"#FFFFFF"},
   quickAddRow:{marginTop:15,flexDirection:"row",alignItems:"center"},
   readCollectedButton:{marginTop:10,paddingVertical:11,paddingHorizontal:13,borderRadius:15,backgroundColor:"#E8F5E9",borderWidth:1,borderColor:"#C8E6C9",flexDirection:"row",alignItems:"center"},
   readCollectedDetails:{flex:1,marginLeft:10},
@@ -2004,6 +2298,9 @@ const styles = StyleSheet.create({
   summary:{flex:1,alignItems:"center"},
   summaryLabel:{fontSize:9,fontWeight:"900",color:"#9A8980"},
   summaryValue:{marginTop:4,fontSize:16,fontWeight:"900",color:"#463E3B"},
+  listBudgetBox:{marginTop:3,flexDirection:"row",alignItems:"center",justifyContent:"center"},
+  listBudgetDollar:{fontSize:16,fontWeight:"900",color:"#657B60"},
+  listBudgetInput:{minWidth:44,paddingVertical:0,paddingHorizontal:3,fontSize:16,fontWeight:"900",color:"#463E3B",textAlign:"center"},
   remaining:{marginTop:4,fontSize:16,fontWeight:"900",color:"#657B60"},
   over:{color:"#FF8A80"},
   summaryLine:{width:1,height:30,backgroundColor:"#EEE7E0"},
@@ -2025,6 +2322,14 @@ const styles = StyleSheet.create({
   shareListDetails:{flex:1,marginLeft:9},
   shareListTitle:{fontSize:12,fontWeight:"900",color:"#40503F"},
   shareListHint:{marginTop:1,fontSize:9,fontWeight:"700",color:"#78907D"},
+  shareSheetBackdrop:{flex:1,justifyContent:"flex-end",backgroundColor:"rgba(20,38,27,0.45)"},
+  shareSheet:{paddingHorizontal:20,paddingTop:19,borderTopLeftRadius:28,borderTopRightRadius:28,backgroundColor:"#FBF7F2"},
+  shareSheetTitle:{fontSize:21,fontWeight:"900",color:"#173B25"},
+  shareSheetHint:{marginTop:4,marginBottom:14,fontSize:12,fontWeight:"600",color:"#607D6B"},
+  shareSheetOption:{height:53,marginBottom:8,paddingHorizontal:15,borderRadius:15,backgroundColor:"#E6EEE2",borderWidth:1,borderColor:"#D4E0D0",flexDirection:"row",alignItems:"center"},
+  shareSheetOptionText:{marginLeft:12,fontSize:15,fontWeight:"900",color:"#40503F"},
+  shareSheetCancel:{height:49,marginTop:3,borderRadius:15,backgroundColor:"#FFFFFF",borderWidth:1,borderColor:"#E4DDD6",alignItems:"center",justifyContent:"center"},
+  shareSheetCancelText:{fontSize:15,fontWeight:"900",color:"#8B554D"},
   sortRow:{marginTop:8,flexDirection:"row",alignItems:"center"},
   sortLabel:{marginRight:7,fontSize:10,fontWeight:"900",color:"#78907D"},
   sortButton:{marginRight:6,paddingVertical:7,paddingHorizontal:10,borderRadius:10,backgroundColor:"#F0F4F0",flexDirection:"row",alignItems:"center"},
@@ -2038,7 +2343,6 @@ const styles = StyleSheet.create({
   previewHeader:{paddingBottom:7,flexDirection:"row",alignItems:"center",justifyContent:"space-between"},
   previewTitle:{fontSize:17,fontWeight:"900",color:"#263238"},
   previewCount:{fontSize:11,fontWeight:"800",color:"#78907D"},
-  previewListScroll:{maxHeight:400},
   previewRow:{marginBottom:7,paddingHorizontal:11,paddingVertical:10,borderRadius:12,backgroundColor:"#FFFFFF",borderWidth:1,borderColor:"#E9E3DE"},
   previewRowPriced:{backgroundColor:"#E8F2E5",borderColor:"#D4E3D0"},
   previewRowCollected:{backgroundColor:"#DFE9DB",borderColor:"#CBDCC6"},

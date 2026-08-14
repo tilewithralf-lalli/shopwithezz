@@ -16,11 +16,59 @@ import {HANDS_FREE_COMMANDS} from "../constants/handsFreeCommands";
 
 
 const STEPS = [
-  "Set your shopping budget.",
-  "Add, scan or import your shopping items.",
-  "Open Shopping List and tap the microphone to speak.",
-  "Tick each item as it goes into your trolley.",
-  "Share or print your list when needed."
+  "On Home, set your shopping budget. It is optional, but it lets ShopWithEzz show how much you have left.",
+  "Open Shopping List and add the things you need. You can type an item, scan it, or use Hands-Free.",
+  "Add a price and quantity if you know them. Your estimated total, amount spent and budget bar update automatically.",
+  "While shopping, tick an item when it goes into your trolley. Untick it if you need to put it back.",
+  "Use the tools on Home whenever you need to scan, speak, share, print, or read these instructions again."
+] as const;
+
+const GUIDE_SECTIONS = [
+  {
+    title:"YOUR HOME SCREEN",
+    icon:"home-outline" as const,
+    text:"Home is your starting point. It shows your budget, spending total, amount left and progress bar. Tap Shopping List to work with your items. Tap the pencil beside your name if you want to change the name ShopWithEzz uses."
+  },
+  {
+    title:"BUDGET, TOTALS AND THE COLOUR BAR",
+    icon:"wallet-outline" as const,
+    text:"Type a budget on Home and press Done. The app adds up the prices and quantities in your current list. Green means comfortably within budget, the colour changes as you get closer, and red means you are close to or over budget. A blank budget means no limit has been set."
+  },
+  {
+    title:"ADD, CHANGE OR REMOVE ITEMS",
+    icon:"list-outline" as const,
+    text:"Open Shopping List to add an item. Tap an item to edit its name, price, quantity or category. Use the item controls to collect or uncollect it. Delete options ask for confirmation before removing anything."
+  },
+  {
+    title:"SCANNER",
+    icon:"barcode-outline" as const,
+    text:"From Home, tap Scanner and allow camera access when asked. Point the camera at a barcode, check the item details, then save it to your shopping list. You can still edit its price, quantity and name afterwards."
+  },
+  {
+    title:"HANDS-FREE SHOPPING",
+    icon:"mic-outline" as const,
+    text:"Open Hands-Free or Shopping List, tap the microphone and allow microphone access when asked. To start Shopping Mode, say “I need” first, for example “I need milk”. Then keep saying item names within 15 seconds. If the timer stops, say “I need” again."
+  },
+  {
+    title:"SHARING AND PRINTING",
+    icon:"share-social-outline" as const,
+    text:"Use Share List on Home or in the list to make a PDF shopping list, send it using another app, or print it. Check the preview before sending or printing."
+  },
+  {
+    title:"IMPORTING A LIST",
+    icon:"document-text-outline" as const,
+    text:"Use Import a List from Settings to open a ShopWithEzz list that somebody shared with you. Read the preview carefully before choosing what to do. Never choose an option that replaces your current list unless you are certain you no longer need it."
+  },
+  {
+    title:"SETTINGS, BACKUP AND RESTORE",
+    icon:"cloud-outline" as const,
+    text:"Settings contains feedback, backup, restore, purchase and extra help. Use Backup regularly and save the file somewhere you can find again. Restore replaces your current ShopWithEzz data with the chosen backup, so make a fresh backup first if you are unsure."
+  },
+  {
+    title:"TRIAL, UNLOCK AND HELP",
+    icon:"shield-checkmark-outline" as const,
+    text:"Your 31-day trial lets you try ShopWithEzz before unlocking it with one payment. Settings can restore a previous Google Play purchase. If something does not work, use Send Feedback in Settings and describe what happened."
+  }
 ] as const;
 
 
@@ -53,7 +101,7 @@ export default function HowToUseScreen(){
 
           <View style={styles.headerText}>
             <Text style={styles.title}>How to Use</Text>
-            <Text style={styles.subtitle}>Simple shopping and speaking help</Text>
+            <Text style={styles.subtitle}>Complete step-by-step guide for ShopWithEzz</Text>
           </View>
         </View>
 
@@ -90,6 +138,18 @@ export default function HowToUseScreen(){
           ))}
         </View>
 
+        {GUIDE_SECTIONS.map((section)=>(
+          <React.Fragment key={section.title}>
+            <Text style={styles.sectionLabel}>{section.title}</Text>
+            <View style={styles.guideCard}>
+              <View style={styles.guideIcon}>
+                <Ionicons name={section.icon} size={23} color="#426047"/>
+              </View>
+              <Text style={styles.guideText}>{section.text}</Text>
+            </View>
+          </React.Fragment>
+        ))}
+
         <Text style={styles.sectionLabel}>WHAT TO SAY</Text>
         <View style={styles.voiceTip}>
           <Ionicons name="mic" size={23} color="#FFFFFF"/>
@@ -116,6 +176,11 @@ export default function HowToUseScreen(){
         <View style={styles.safetyCard}>
           <Ionicons name="shield-checkmark-outline" size={24} color="#7D5A46"/>
           <Text style={styles.safetyText}>Delete commands always ask for confirmation before anything is removed.</Text>
+        </View>
+
+        <View style={styles.finishCard}>
+          <Ionicons name="checkmark-circle-outline" size={25} color="#426047"/>
+          <Text style={styles.finishText}>If a part of the app is unclear, come back here first. This guide is kept up to date as ShopWithEzz changes.</Text>
         </View>
       </ScrollView>
     </View>
@@ -248,6 +313,31 @@ const styles = StyleSheet.create({
     borderWidth:1,
     borderColor:"#E8E1DA"
   },
+  guideCard:{
+    flexDirection:"row",
+    alignItems:"flex-start",
+    padding:15,
+    borderRadius:19,
+    backgroundColor:"#FFFFFF",
+    borderWidth:1,
+    borderColor:"#E8E1DA"
+  },
+  guideIcon:{
+    width:40,
+    height:40,
+    borderRadius:13,
+    alignItems:"center",
+    justifyContent:"center",
+    backgroundColor:"#E8F0E6"
+  },
+  guideText:{
+    flex:1,
+    marginLeft:12,
+    fontSize:14,
+    lineHeight:20,
+    fontWeight:"600",
+    color:"#4A4845"
+  },
   step:{
     flexDirection:"row",
     alignItems:"center",
@@ -339,5 +429,21 @@ const styles = StyleSheet.create({
     lineHeight:19,
     fontWeight:"700",
     color:"#6D5141"
+  }
+  ,finishCard:{
+    flexDirection:"row",
+    alignItems:"center",
+    marginTop:14,
+    padding:15,
+    borderRadius:17,
+    backgroundColor:"#E8F0E6"
+  },
+  finishText:{
+    flex:1,
+    marginLeft:11,
+    fontSize:13,
+    lineHeight:19,
+    fontWeight:"700",
+    color:"#426047"
   }
 });
