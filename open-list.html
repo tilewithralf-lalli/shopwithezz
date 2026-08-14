@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Open ShopWithEzz List</title>
+  <style>
+    :root{--green:#2e7d32;--cream:#fbf7f2;--dark:#173b25;--muted:#607d6b}*{box-sizing:border-box}body{min-height:100vh;margin:0;display:grid;place-items:center;padding:24px;background:var(--cream);font-family:Arial,Helvetica,sans-serif;color:var(--dark)}main{width:min(480px,100%);padding:32px 26px;border-radius:24px;background:#fff;text-align:center;box-shadow:0 10px 30px rgba(23,59,37,.1)}h1{margin:0;font-size:30px}p{line-height:1.55;color:var(--muted)}a{display:block;margin-top:20px;padding:16px;border-radius:15px;background:var(--green);color:#fff;font-weight:800;text-decoration:none}.small{margin-top:18px;font-size:13px}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Opening your list…</h1>
+    <p id="message">ShopWithEzz is opening the shared list now.</p>
+    <a id="open" href="shopwithezz:///">Open in ShopWithEzz</a>
+    <p class="small">If you do not have ShopWithEzz yet, install it first, then tap the link in the message again.</p>
+  </main>
+  <script>
+    const encoded = window.location.hash.slice(1);
+    const target = encoded
+      ? `shopwithezz:///importList?data=${encoded}`
+      : "shopwithezz:///";
+    const open = document.getElementById("open");
+    open.href = target;
+    if(encoded){
+      window.location.replace(target);
+    }else{
+      document.getElementById("message").textContent = "This shared link does not contain a shopping list.";
+    }
+  </script>
+</body>
+</html>
