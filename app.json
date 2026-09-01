@@ -5,7 +5,7 @@
     "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/shopwithezz-icon.png",
-    "scheme": "shopwithezz",
+    "scheme": "shopwithezz-trial",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
@@ -24,10 +24,11 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.lalli61.ShopWithEzzV2",
+      "package": "com.lalli61.shopwithezz",
       "permissions": [
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "versionCode": 10
     },
     "web": {
       "output": "static",
@@ -63,6 +64,14 @@
             "application/vnd.shopwithezz.list+json"
           ],
           "disableIOS": true
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 26
+          }
         }
       ],
       "expo-secure-store"

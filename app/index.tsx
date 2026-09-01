@@ -1,11 +1,13 @@
 import React, {
     useCallback,
     useEffect,
+    useRef,
     useState
 } from "react";
 
 import {
     Alert,
+    AppState,
     Image,
     KeyboardAvoidingView,
     Linking,
@@ -34,10 +36,6 @@ import {
 import Constants from "expo-constants";
 
 import {
-    ShoppingCategory
-} from "../constants/shoppingCategories";
-
-import {
   calculateTrialStatus,
   DEVELOPMENT_TRIAL_DURATION_MILLISECONDS,
   TrialStatus,
@@ -46,7 +44,8 @@ import {
 
 import {
   loadTrialStatus,
-  resetDevelopmentTrial
+  resetDevelopmentTrial,
+  saveTrialState
 } from "../storage/trial";
 
 import {
@@ -68,13 +67,19 @@ const SESSION_KEY =
 const USER_NAME_KEY =
   "shopwithezz-user-name";
 
+const TRIAL_REMINDERS_ENABLED_KEY =
+  "shopwithezz-trial-reminders-enabled";
+
+const TRIAL_REMINDER_DAY_KEY =
+  "shopwithezz-trial-last-reminder-day";
+
 type ShoppingItem = {
   id:string;
   name:string;
   price:number;
   purchased:boolean;
   quantity?:number;
-  category?:ShoppingCategory;
+  category?:string;
 };
 
 type ShoppingSession = {
@@ -193,6 +198,7 @@ export default function HomeScreen(){
   const router = useRouter();
 
   const {isPurchasing,isUnlocked,productPrice,purchaseUnlock} = usePurchase();
+  const isFamilyEdition = Constants.expoConfig?.extra?.appEdition === "family";
 
   const [session,setSession] =
     useState<ShoppingSession>(EMPTY_SESSION);
@@ -211,6 +217,13 @@ export default function HomeScreen(){
 
   const [trialStatus,setTrialStatus] =
     useState<TrialStatus | null>(null);
+
+  const trialDaysRemaining =
+    trialStatus?.daysRemaining;
+
+  const isTrialExpired =
+    trialStatus?.isExpired;
+  const appState = useRef(AppState.currentState);
   const [activeListName,setActiveListName] = useState("My Shopping List");
   const [homeListItemCount,setHomeListItemCount] = useState(0);
   const [importedList,setImportedList] =
@@ -230,21 +243,106 @@ export default function HomeScreen(){
 
   useEffect(()=>{
     const timer = setInterval(()=>{
-      setTrialStatus(current=>
-        current
-          ? calculateTrialStatus(
+      if(appState.current !== "active"){
+        return;
+      }
+
+      setTrialStatus(current=>{
+        if(!current){
+          return current;
+        }
+
+        const updated = calculateTrialStatus(
+          current.nextState,
+          Date.now(),
+          __DEV__
+            ? DEVELOPMENT_TRIAL_DURATION_MILLISECONDS
+            : TRIAL_DURATION_MILLISECONDS
+        );
+
+        void saveTrialState(updated.nextState);
+        return updated;
+      });
+    },1000);
+
+    const subscription = AppState.addEventListener(
+      "change",
+      nextAppState=>{
+        if(nextAppState === "active"){
+          appState.current = nextAppState;
+          loadTrialStatus().then(setTrialStatus);
+          return;
+        }
+
+        if(appState.current === "active"){
+          setTrialStatus(current=>{
+            if(!current){
+              return current;
+            }
+
+            const updated = calculateTrialStatus(
               current.nextState,
               Date.now(),
               __DEV__
                 ? DEVELOPMENT_TRIAL_DURATION_MILLISECONDS
                 : TRIAL_DURATION_MILLISECONDS
-            )
-          : current
-      );
-    },1000);
+            );
 
-    return ()=>clearInterval(timer);
+            void saveTrialState(updated.nextState);
+            return updated;
+          });
+        }
+
+        appState.current = nextAppState;
+      }
+    );
+
+    return ()=>{
+      clearInterval(timer);
+      subscription.remove();
+    };
   },[]);
+
+  useEffect(()=>{
+    if(
+      isFamilyEdition
+      || !trialDaysRemaining
+      || isTrialExpired
+      || trialDaysRemaining > 7
+    ){
+      return;
+    }
+
+    const reminderDay = new Date().toISOString().slice(0,10);
+
+    void AsyncStorage.multiGet([
+      TRIAL_REMINDERS_ENABLED_KEY,
+      TRIAL_REMINDER_DAY_KEY
+    ]).then(([remindersEnabledEntry,lastReminderEntry])=>{
+      const remindersEnabled =
+        remindersEnabledEntry[1] !== "false";
+
+      if(!remindersEnabled || lastReminderEntry[1] === reminderDay){
+        return;
+      }
+
+      void AsyncStorage.setItem(
+        TRIAL_REMINDER_DAY_KEY,
+        reminderDay
+      );
+
+      Alert.alert(
+        "Your ShopWithEzz Trial",
+        trialDaysRemaining === 1
+          ? "Your trial ends tomorrow. You can unlock ShopWithEzz any time in Settings."
+          : `${trialDaysRemaining} days remain in your trial. You can unlock ShopWithEzz any time in Settings.`
+      );
+    });
+  },[
+    isFamilyEdition,
+    trialDaysRemaining,
+    isTrialExpired
+  ]);
 
 
   async function loadHome(){
@@ -517,15 +615,6 @@ export default function HomeScreen(){
       item=>item.purchased
     ).length;
 
-  const trialTimeText =
-    trialStatus
-      ? __DEV__
-        ? `${Math.floor(trialStatus.millisecondsRemaining/60000)}:${String(
-            Math.floor(trialStatus.millisecondsRemaining/1000)%60
-          ).padStart(2,"0")} remaining`
-        : `${trialStatus.daysRemaining} day${trialStatus.daysRemaining === 1 ? "" : "s"} remaining`
-      : "Starting trial…";
-
   async function restartTestTrial(){
     await resetDevelopmentTrial();
     setTrialStatus(await loadTrialStatus());
@@ -590,9 +679,9 @@ export default function HomeScreen(){
               activeOpacity={0.84}
               onPress={restartTestTrial}
               accessibilityRole="button"
-              accessibilityLabel="Restart one minute test trial"
+              accessibilityLabel="Restart 31-day test trial"
             >
-              <Text style={styles.restartTrialButtonText}>RESTART 1-MINUTE TEST</Text>
+              <Text style={styles.restartTrialButtonText}>RESTART 31-DAY TEST</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -793,20 +882,6 @@ export default function HomeScreen(){
 
         </View>
 
-
-        <View style={styles.quickHeadingRow}>
-
-          <View>
-
-            <Text style={styles.quickHeading}>
-              Tools
-            </Text>
-
-          </View>
-
-        </View>
-
-
         <View style={styles.quickGrid}>
 
           <TouchableOpacity
@@ -894,45 +969,6 @@ export default function HomeScreen(){
           <TouchableOpacity
             style={[
               styles.quickCard,
-              styles.howToCard
-            ]}
-            activeOpacity={0.84}
-            onPress={()=>router.push("/howToUse")}
-            accessibilityRole="button"
-            accessibilityLabel="How to use ShopWithEzz"
-          >
-
-            <View style={styles.quickIconBox}>
-
-              <Ionicons
-                name="help-circle-outline"
-                size={25}
-                color="#79664D"
-              />
-
-            </View>
-
-            <View style={styles.quickTextBox}>
-              <Text style={styles.quickTitle}>How to Use</Text>
-              <Text style={styles.quickSubtitle}>Simple step-by-step help</Text>
-            </View>
-
-            <View style={styles.quickArrowBox}>
-
-              <Ionicons
-                name="arrow-forward"
-                size={16}
-                color="#79664D"
-              />
-
-            </View>
-
-          </TouchableOpacity>
-
-
-          <TouchableOpacity
-            style={[
-              styles.quickCard,
               styles.scannerCard
             ]}
             activeOpacity={0.84}
@@ -977,14 +1013,43 @@ export default function HomeScreen(){
 
         </View>
 
-
-        <View style={[styles.trialCard,trialStatus?.isExpired && styles.trialCardExpired]}>
-          <Ionicons name={trialStatus?.isExpired ? "time" : "sparkles"} size={17} color={trialStatus?.isExpired ? "#9F2D26" : "#426047"} />
-          <View style={styles.trialText}>
-            <Text style={[styles.trialTitle,trialStatus?.isExpired && styles.trialTitleExpired]}>{__DEV__ ? "TEST TRIAL" : "31-DAY BETA TRIAL"}</Text>
-            <Text style={styles.trialDetail}>{trialStatus?.isExpired ? "Expired" : trialTimeText}</Text>
+        <TouchableOpacity
+          style={[styles.quickCard,styles.photoImportHomeCard]}
+          activeOpacity={0.84}
+          onPress={()=>router.push("/importPhoto")}
+          accessibilityRole="button"
+          accessibilityLabel="Photo item and import photo"
+        >
+          <View style={styles.quickIconBox}>
+            <Ionicons name="images-outline" size={26} color="#536650" />
           </View>
-        </View>
+          <View style={styles.quickTextBox}>
+            <Text style={styles.quickTitle}>Photo Item / Import Photo</Text>
+            <Text style={styles.quickSubtitle}>Take or choose a photo to read item and price</Text>
+          </View>
+          <View style={styles.quickArrowBox}>
+            <Ionicons name="arrow-forward" size={16} color="#536650" />
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.quickCard,styles.howToCard]}
+          activeOpacity={0.84}
+          onPress={()=>router.push("/howToUse")}
+          accessibilityRole="button"
+          accessibilityLabel="Open How to Use"
+        >
+          <View style={styles.quickIconBox}>
+            <Ionicons name="help-circle-outline" size={25} color="#79664D" />
+          </View>
+          <View style={styles.quickTextBox}>
+            <Text style={styles.quickTitle}>How to Use</Text>
+            <Text style={styles.quickSubtitle}>Simple step-by-step help</Text>
+          </View>
+          <View style={styles.quickArrowBox}>
+            <Ionicons name="arrow-forward" size={16} color="#79664D" />
+          </View>
+        </TouchableOpacity>
 
       </ScrollView>
 
@@ -1085,7 +1150,7 @@ const styles = StyleSheet.create({
 
   content:{
     paddingHorizontal:18,
-    paddingTop:20,
+    paddingTop:21,
     paddingBottom:20
   },
 
@@ -1149,7 +1214,7 @@ const styles = StyleSheet.create({
 
   hello:{
     marginTop:3,
-    fontSize:20,
+    fontSize:19,
     fontWeight:"900",
     letterSpacing:-0.6,
     color:"#463E3B"
@@ -1246,8 +1311,9 @@ const styles = StyleSheet.create({
   },
 
   summaryCard:{
-    marginTop:6,
-    padding:7,
+    marginTop:4,
+    paddingVertical:3,
+    paddingHorizontal:7,
     borderRadius:14,
     backgroundColor:"#FFFFFF",
     borderWidth:1,
@@ -1409,7 +1475,7 @@ const styles = StyleSheet.create({
   listButton:{
     marginTop:10,
     padding:13,
-    minHeight:148,
+    minHeight:136,
     borderRadius:17,
     backgroundColor:"#F3E7E2",
     borderWidth:1,
@@ -1433,7 +1499,7 @@ const styles = StyleSheet.create({
   },
 
   listTitle:{
-    fontSize:18,
+    fontSize:17,
     fontWeight:"900",
     color:"#465344"
   },
@@ -1495,6 +1561,11 @@ const styles = StyleSheet.create({
     marginRight:0
   },
 
+  handsFreeCard:{
+    backgroundColor:"#F2E9F0",
+    borderColor:"#E4D7E1"
+  },
+
   shareCard:{
     backgroundColor:"#F2E9F0",
     borderColor:"#E4D7E1"
@@ -1506,8 +1577,16 @@ const styles = StyleSheet.create({
   },
 
   scannerCard:{
+    minHeight:76,
     backgroundColor:"#E7EFF2",
     borderColor:"#D5E1E6"
+  },
+
+  photoImportHomeCard:{
+    minHeight:76,
+    marginTop:8,
+    backgroundColor:"#EDF3EB",
+    borderColor:"#D4E2D2"
   },
 
   quickIconBox:{

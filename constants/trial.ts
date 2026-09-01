@@ -1,20 +1,19 @@
-export const TRIAL_DAYS = 31;
-
 export const DAY_IN_MILLISECONDS =
   24 * 60 * 60 * 1000;
+
+export const TRIAL_DAYS = 31;
 
 export const TRIAL_DURATION_MILLISECONDS =
   TRIAL_DAYS * DAY_IN_MILLISECONDS;
 
-export const DEVELOPMENT_TRIAL_MINUTES = 1;
-
 export const DEVELOPMENT_TRIAL_DURATION_MILLISECONDS =
-  DEVELOPMENT_TRIAL_MINUTES * 60 * 1000;
+  TRIAL_DURATION_MILLISECONDS;
 
 
 export type TrialState = {
   startedAt:number;
   lastCheckedAt:number;
+  activeMilliseconds:number;
 };
 
 export type TrialStatus = {
@@ -33,7 +32,8 @@ export function createTrialState(
 ):TrialState{
   return {
     startedAt:now,
-    lastCheckedAt:now
+    lastCheckedAt:now,
+    activeMilliseconds:0
   };
 }
 
@@ -56,8 +56,7 @@ export function calculateTrialStatus(
   const clockMovedBack =
     now < safeLastCheckedAt;
 
-  const effectiveNow =
-    Math.max(now,safeLastCheckedAt);
+  const effectiveNow = Math.max(now,safeLastCheckedAt);
 
   const expiresAt =
     safeStartedAt + durationMilliseconds;
@@ -85,6 +84,7 @@ export function calculateTrialStatus(
     nextState:{
       startedAt:safeStartedAt,
       lastCheckedAt:effectiveNow
+      ,activeMilliseconds:Math.max(0,effectiveNow-safeStartedAt)
     }
   };
 }

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShopWithEzz Project Tracker</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --green: #48634b;
+      --soft-green: #e8f0e6;
+      --cream: #fbf7f2;
+      --rose: #f3e7e2;
+      --ink: #403f3c;
+      --muted: #756d67;
+      --line: #ded8d1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 18px;
+      line-height: 1.45;
+    }
+    main { width: min(920px, 100%); margin: 0 auto; padding: 28px 18px 52px; }
+    header {
+      padding: 26px;
+      border: 1px solid #dbe5d9;
+      border-radius: 24px;
+      background: linear-gradient(145deg, #edf4eb, #f8efeb);
+      box-shadow: 0 10px 28px rgba(64, 79, 63, .08);
+    }
+    h1 { margin: 0; color: var(--green); font-size: clamp(30px, 6vw, 46px); }
+    header p { margin: 8px 0 0; color: var(--muted); font-weight: 700; }
+    .save-state {
+      display: inline-block;
+      margin-top: 13px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 900;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 18px 0 0;
+    }
+    .summary div { padding: 12px 8px; border-radius: 14px; background: rgba(255,255,255,.72); text-align: center; }
+    .summary strong { display: block; font-size: 25px; color: var(--green); }
+    .summary span { font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    section { margin-top: 26px; }
+    h2 { margin: 0 0 12px; font-size: 23px; color: var(--green); }
+    .task {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      width: 100%;
+      margin: 10px 0;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(64, 63, 60, .04);
+    }
+    .task:hover, .task:focus-visible { outline: 3px solid #c8d8c5; border-color: var(--green); }
+    .task-title { display: block; font-size: 17px; font-weight: 800; }
+    .task-note { display: block; margin-top: 4px; color: var(--muted); font-size: 14px; }
+    .status {
+      min-width: 126px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 900;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .pending .status { background: #eeeae5; color: #655f59; }
+    .in-progress .status { background: #fff0b8; color: #755c00; }
+    .needs-attention .status { background: #ffd9d6; color: #8a2922; }
+    .done .status { background: #d9efda; color: #245f2c; }
+    .done .task-title { text-decoration: line-through; text-decoration-thickness: 2px; color: #60705f; }
+    .instructions { padding: 16px 18px; border-radius: 16px; background: var(--rose); }
+    footer { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--line); text-align: center; color: var(--muted); }
+    footer strong { color: var(--green); }
+    @media (max-width: 620px) {
+      body { font-size: 16px; }
+      main { padding: 14px 12px 36px; }
+      header { padding: 20px 16px; }
+      .summary { grid-template-columns: repeat(2, 1fr); }
+      .task { grid-template-columns: 1fr; }
+      .status { justify-self: start; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>ShopWithEzz Project Tracker</h1>
+      <p>Tap a task to change its status. Work through one step at a time.</p>
+      <div class="save-state" id="save-state" aria-live="polite">All changes save automatically</div>
+      <div class="summary" aria-live="polite">
+        <div><strong id="pending-count">0</strong><span>Pending</span></div>
+        <div><strong id="progress-count">0</strong><span>In Progress</span></div>
+        <div><strong id="attention-count">0</strong><span>Attention</span></div>
+        <div><strong id="done-count">0</strong><span>Done</span></div>
+      </div>
+    </header>
+
+    <section class="instructions">
+      <strong>How it works:</strong> tap any task to move through Pending, In Progress, Needs Attention, and Done. Your selections are saved automatically on this computer.
+    </section>
+
+    <section>
+      <h2>1. App Features</h2>
+      <button class="task" data-id="core-features" data-status="done"><span><span class="task-title">Core shopping features completed</span><span class="task-note">Shopping list, budget, scanner, sharing and importing.</span></span><span class="status"></span></button>
+      <button class="task" data-id="hands-free" data-status="done"><span><span class="task-title">Hands-Free commands completed</span><span class="task-note">Add, collect, uncollect, change quantity, read and delete commands.</span></span><span class="status"></span></button>
+      <button class="task" data-id="settings" data-status="done"><span><span class="task-title">Standard Settings completed</span><span class="task-note">Profile, Extras, Feedback, Backup, Restore and About.</span></span><span class="status"></span></button>
+      <button class="task" data-id="home-layout" data-status="done"><span><span class="task-title">Home-screen redesign approved</span><span class="task-note">Cleaner layout that passes the Granny Test.</span></span><span class="status"></span></button>
+    </section>
+
+    <section>
+      <h2>2. Quality Checks</h2>
+      <button class="task" data-id="quick-test" data-status="done"><span><span class="task-title">Quick and fast test</span><span class="task-note">Approved on the real phone - common jobs are clear, quick and working.</span></span><span class="status"></span></button>
+      <button class="task" data-id="smart-test" data-status="done"><span><span class="task-title">Smart and really smart test</span><span class="task-note">Approved on the real phone - voice commands understand everyday wording and respond correctly.</span></span><span class="status"></span></button>
+      <button class="task" data-id="reliability-test" data-status="done"><span><span class="task-title">Reliability test on the real phone</span><span class="task-note">Approved - restart saving, backup, restore and offline behaviour all passed.</span></span><span class="status"></span></button>
+      <button class="task" data-id="granny-test" data-status="done"><span><span class="task-title">Final Granny Test</span><span class="task-note">Passed and approved - a first-time user can understand every important screen.</span></span><span class="status"></span></button>
+    </section>
+
+    <section>
+      <h2>3. Project Documents</h2>
+      <button class="task" data-id="bible" data-status="done"><span><span class="task-title">Complete 02 - BIBLE</span><span class="task-note">Approved - vision, principles, users and long-term direction are documented.</span></span><span class="status"></span></button>
+      <button class="task" data-id="roadmap" data-status="done"><span><span class="task-title">Complete 03 - ROADMAP</span><span class="task-note">Approved - development phases, milestones and build order are documented.</span></span><span class="status"></span></button>
+      <button class="task" data-id="master-plan" data-status="done"><span><span class="task-title">Complete 04 - MASTER PLAN</span><span class="task-note">Approved - detailed implementation, testing and release checklist is documented.</span></span><span class="status"></span></button>
+      <button class="task" data-id="ideas" data-status="done"><span><span class="task-title">Complete 05 - IDEAS</span><span class="task-note">Approved - future improvements are safely separated from the finished release.</span></span><span class="status"></span></button>
+      <button class="task" data-id="changelog" data-status="done"><span><span class="task-title">Complete 06 - CHANGELOG</span><span class="task-note">Approved - finished features, improvements, tests and pending release work are recorded.</span></span><span class="status"></span></button>
+      <button class="task" data-id="backup-log" data-status="done"><span><span class="task-title">Complete 07 - BACKUP LOG</span><span class="task-note">Approved - all current backups, restore points and future release records are documented.</span></span><span class="status"></span></button>
+      <button class="task" data-id="document-footers" data-status="done"><span><span class="task-title">Add the standard footer to every official document</span><span class="task-note">Approved - all 10 official Markdown documents passed the footer check.</span></span><span class="status"></span></button>
+    </section>
+
+    <section>
+      <h2>4. Release System</h2>
+      <button class="task" data-id="trial" data-status="in-progress"><span><span class="task-title">31-day beta trial system</span><span class="task-note">In progress - building and testing the trial foundation one step at a time.</span></span><span class="status"></span></button>
+      <button class="task" data-id="unlock" data-status="pending"><span><span class="task-title">One-time purchase and permanent unlock</span><span class="task-note">No subscription; purchase restoration is supported.</span></span><span class="status"></span></button>
+      <button class="task" data-id="trial-lock" data-status="pending"><span><span class="task-title">Automatic trial lock tested</span><span class="task-note">Expired trials are handled clearly and fairly.</span></span><span class="status"></span></button>
+      <button class="task" data-id="version-branding" data-status="pending"><span><span class="task-title">Final version and release branding</span><span class="task-note">Version, build number, release type and release date.</span></span><span class="status"></span></button>
+    </section>
+
+    <section>
+      <h2>5. Final Backup and Local Build</h2>
+      <button class="task" data-id="source-backup" data-status="pending"><span><span class="task-title">Create final approved source backup</span><span class="task-note">Keep the finished source separate and recoverable.</span></span><span class="status"></span></button>
+      <button class="task" data-id="local-build" data-status="pending"><span><span class="task-title">Create the final Android build locally</span><span class="task-note">Build only after all tests and approval are complete.</span></span><span class="status"></span></button>
+      <button class="task" data-id="install-build" data-status="pending"><span><span class="task-title">Install and test the final build</span><span class="task-note">Fresh-install test on the real Android phone.</span></span><span class="status"></span></button>
+    </section>
+
+    <section>
+      <h2>6. Public Download Page</h2>
+      <button class="task" data-id="public-page" data-status="pending"><span><span class="task-title">Prepare the ShopWithEzz public information page</span><span class="task-note">Trust, features, privacy, price, trial and feedback details.</span></span><span class="status"></span></button>
+      <button class="task" data-id="device-detection" data-status="pending"><span><span class="task-title">Add Android and iOS device detection</span><span class="task-note">Android sees Download; iPhone and iPad see Coming Soon.</span></span><span class="status"></span></button>
+      <button class="task" data-id="download-test" data-status="pending"><span><span class="task-title">Test the public download journey</span><span class="task-note">One link, correct device message, correct approved download.</span></span><span class="status"></span></button>
+    </section>
+
+    <footer>
+      <strong>ShopWithEzz - Team Lalli61</strong><br>
+      Tracker Version 1.0 | Created 09 August 2026<br>
+      Designed &amp; Created by Team Lalli61<br>
+      GSD - Get Stuff Done
+    </footer>
+  </main>
+
+  <script>
+    const states = [
+      { key: "pending", label: "Pending" },
+      { key: "in-progress", label: "In Progress" },
+      { key: "needs-attention", label: "Needs Attention" },
+      { key: "done", label: "Done" }
+    ];
+    const storageKey = "shopwithezz-project-tracker-v12";
+    const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+    const tasks = [...document.querySelectorAll(".task")];
+
+    function paint(task, status) {
+      task.dataset.status = status;
+      task.classList.remove(...states.map(state => state.key));
+      task.classList.add(status);
+      task.querySelector(".status").textContent = states.find(state => state.key === status).label;
+    }
+
+    function updateSummary() {
+      const count = key => tasks.filter(task => task.dataset.status === key).length;
+      document.getElementById("pending-count").textContent = count("pending");
+      document.getElementById("progress-count").textContent = count("in-progress");
+      document.getElementById("attention-count").textContent = count("needs-attention");
+      document.getElementById("done-count").textContent = count("done");
+    }
+
+    function save() {
+      const statuses = Object.fromEntries(tasks.map(task => [task.dataset.id, task.dataset.status]));
+      localStorage.setItem(storageKey, JSON.stringify(statuses));
+      updateSummary();
+      const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      document.getElementById("save-state").textContent = `Saved ✓ at ${now}`;
+    }
+
+    tasks.forEach(task => {
+      paint(task, saved[task.dataset.id] || task.dataset.status || "pending");
+      task.addEventListener("click", () => {
+        const current = states.findIndex(state => state.key === task.dataset.status);
+        paint(task, states[(current + 1) % states.length].key);
+        save();
+      });
+    });
+    updateSummary();
+  </script>
+</body>
+</html>

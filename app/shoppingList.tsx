@@ -7,14 +7,18 @@ import React, {
 
 import {
     Alert,
+    Animated,
     Keyboard,
+    KeyboardAvoidingView,
     Modal,
+    Platform,
     ScrollView,
     Share,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
+    Vibration,
     View
 } from "react-native";
 
@@ -54,6 +58,7 @@ import {
   ensureLists,
   deleteList,
   getActiveList,
+  renameList,
   saveActiveSession,
   selectList,
   type ShoppingList as SavedShoppingList
@@ -156,9 +161,46 @@ export default function ShoppingListScreen(){
   const [listBudgetInput,setListBudgetInput] =
     useState("");
 
+  const listBudgetInputRef =
+    useRef<TextInput>(null);
+
+  const budgetAlertActive =
+    useRef(false);
+
+  const [budgetBombVisible,setBudgetBombVisible] =
+    useState(false);
+
+  const [budgetBombMessage,setBudgetBombMessage] =
+    useState("");
+
+  const budgetBombScale =
+    useRef(new Animated.Value(0.2)).current;
+
+  const budgetMoneyRain =
+    useRef(
+      Array.from({length:14},(_,index)=>({
+        fall:new Animated.Value(0),
+        delay:(index % 7) * 105 + Math.floor(index / 7) * 145,
+        drift:((index * 67) % 280) - 140,
+        turn:index % 2 === 0 ? 22 : -22
+      }))
+    ).current;
+
+  const budgetMoneyRainAnimation =
+    useRef<Animated.CompositeAnimation | null>(null);
+
+  const [renameListVisible,setRenameListVisible] =
+    useState(false);
+
+  const [listNameInput,setListNameInput] =
+    useState("");
+
   const primaryList =
     availableLists.find(list=>list.name === "My Shopping List")
     || availableLists[0];
+
+  const activeList =
+    availableLists.find(list=>list.id === activeListId);
 
   const newestImportedList =
     availableLists
@@ -242,6 +284,59 @@ export default function ShoppingListScreen(){
     };
 
   },[]);
+
+  useEffect(()=>{
+    const total = session.items.reduce(
+      (sum,item)=>sum + Number(item.price || 0) * Math.max(1,Number(item.quantity || 1)),
+      0
+    );
+    const hasReachedBudget = session.budget > 0 && total > session.budget;
+
+    if(!hasReachedBudget){
+      budgetAlertActive.current = false;
+      return;
+    }
+
+    if(budgetAlertActive.current){
+      return;
+    }
+
+    budgetAlertActive.current = true;
+    Vibration.vibrate([0,500,180,500]);
+
+    const difference = total - session.budget;
+    setBudgetBombMessage(
+      `Boom! Your list is $${difference.toFixed(2)} over its $${session.budget.toFixed(2)} budget.`
+    );
+    setBudgetBombVisible(true);
+    budgetBombScale.setValue(0.2);
+    budgetMoneyRainAnimation.current?.stop();
+    budgetMoneyRain.forEach(note=>note.fall.setValue(0));
+    Animated.sequence([
+      Animated.timing(budgetBombScale,{toValue:1.35,duration:260,useNativeDriver:true}),
+      Animated.spring(budgetBombScale,{toValue:1,useNativeDriver:true})
+    ]).start();
+    budgetMoneyRainAnimation.current = Animated.parallel(
+      budgetMoneyRain.map(note=>
+        Animated.loop(
+          Animated.sequence([
+            Animated.delay(note.delay),
+            Animated.timing(note.fall,{
+              toValue:1,
+              duration:3100,
+              useNativeDriver:true
+            }),
+            Animated.timing(note.fall,{
+              toValue:0,
+              duration:0,
+              useNativeDriver:true
+            })
+          ])
+        )
+      )
+    );
+    budgetMoneyRainAnimation.current.start();
+  },[session,budgetBombScale,budgetMoneyRain]);
 
 
   useFocusEffect(
@@ -473,6 +568,32 @@ export default function ShoppingListScreen(){
     await loadSession();
   }
 
+  function openRenameList(){
+    if(!activeList || activeList.name === "My Shopping List"){
+      return;
+    }
+    setListNameInput(activeList.name);
+    setRenameListVisible(true);
+  }
+
+  async function saveRenamedList(){
+    if(!activeList){
+      return;
+    }
+    const cleanName = listNameInput.trim();
+    if(!cleanName){
+      Alert.alert("Name Your List", "Please enter a list name.");
+      return;
+    }
+    try{
+      await renameList(activeList.id,cleanName);
+      setRenameListVisible(false);
+      await loadSession();
+    }catch{
+      Alert.alert("Could Not Rename List", "Please try again.");
+    }
+  }
+
   function askToDeleteList(list:SavedShoppingList){
     if(list.name === "My Shopping List"){
       return;
@@ -517,9 +638,12 @@ export default function ShoppingListScreen(){
 
   }
 
-  async function saveListBudget(){
-    const value = Number(listBudgetInput.replace(",","."));
-    if(Number.isNaN(value) || value < 0){
+  async function saveListBudget(
+    input:string = listBudgetInput
+  ){
+    const cleanInput = input.trim();
+    const value = Number(cleanInput.replace(",","."));
+    if(!cleanInput || Number.isNaN(value) || value < 0){
       Alert.alert("Invalid Budget", "Enter a valid budget amount.");
       return;
     }
@@ -1652,18 +1776,13 @@ export default function ShoppingListScreen(){
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={()=>{
-            if(router.canGoBack()){
-              router.back();
-              return;
-            }
-            router.replace("/");
-          }}
+          onPress={()=>router.replace("/")}
         >
           <Text style={styles.backText}>‹</Text>
         </TouchableOpacity>
 
         <View style={styles.headerDetails}>
+          <View style={styles.listTitleRow}>
           <Text style={styles.title}>
             {listView === "toBuy"
               ? "To Buy"
@@ -1673,8 +1792,18 @@ export default function ShoppingListScreen(){
                   ? "All Items"
                   : availableLists.find(list=>list.id === activeListId)?.name === "My Shopping List"
                     ? "My List"
-                    : availableLists.find(list=>list.id === activeListId)?.name || "My List"}
+                    : activeList?.name || "My List"}
           </Text>
+          {isOverview && activeList && activeList.name !== "My Shopping List" && (
+            <TouchableOpacity
+              style={styles.renameListButton}
+              onPress={openRenameList}
+              accessibilityLabel="Rename imported list"
+            >
+              <Ionicons name="pencil" size={18} color="#2E7D32" />
+            </TouchableOpacity>
+          )}
+          </View>
           <Text style={styles.subtitle}>
             Unpriced first
             {" • "}
@@ -1844,13 +1973,15 @@ export default function ShoppingListScreen(){
           <View style={styles.listBudgetBox}>
             <Text style={styles.listBudgetDollar}>$</Text>
             <TextInput
+              ref={listBudgetInputRef}
               style={styles.listBudgetInput}
               value={listBudgetInput}
               onChangeText={setListBudgetInput}
               keyboardType="decimal-pad"
               returnKeyType="done"
-              onSubmitEditing={()=>void saveListBudget()}
-              onEndEditing={()=>void saveListBudget()}
+              onSubmitEditing={({nativeEvent})=>void saveListBudget(nativeEvent.text)}
+              onEndEditing={({nativeEvent})=>void saveListBudget(nativeEvent.text)}
+              selectTextOnFocus
               accessibilityLabel="Budget for this list"
             />
           </View>
@@ -2181,6 +2312,134 @@ export default function ShoppingListScreen(){
       )}
 
       <Modal
+        visible={budgetBombVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={()=>{
+          budgetMoneyRainAnimation.current?.stop();
+          setBudgetBombVisible(false);
+        }}
+      >
+        <View style={styles.budgetBombBackdrop}>
+          <View style={styles.budgetBombCard}>
+            <View pointerEvents="none" style={styles.budgetMoneyRainLayer}>
+              {budgetMoneyRain.map((note,index)=>(
+                <Animated.Text
+                  key={index}
+                  style={[
+                    styles.budgetMoneyNote,
+                    {
+                      opacity:note.fall.interpolate({
+                        inputRange:[0,0.08,0.82,1],
+                        outputRange:[0,1,1,0]
+                      }),
+                      transform:[
+                        {translateX:note.drift},
+                        {
+                          translateY:note.fall.interpolate({
+                            inputRange:[0,1],
+                            outputRange:[-165,260]
+                          })
+                        },
+                        {
+                          rotate:note.fall.interpolate({
+                            inputRange:[0,1],
+                            outputRange:["0deg",`${note.turn}deg`]
+                          })
+                        }
+                      ]
+                    }
+                  ]}
+                >
+                  💵
+                </Animated.Text>
+              ))}
+            </View>
+            <Animated.Text
+              style={[
+                styles.budgetBombExplosion,
+                {transform:[{scale:budgetBombScale}]}
+              ]}
+            >
+              💣💥
+            </Animated.Text>
+            <Animated.Text
+              style={[
+                styles.budgetBombWallet,
+                {transform:[{scale:budgetBombScale}]}
+              ]}
+            >
+              👛
+            </Animated.Text>
+            <Text style={styles.budgetBombTitle}>OVER BUDGET</Text>
+            <Text style={styles.budgetBombMessage}>{budgetBombMessage}</Text>
+            <View style={styles.budgetBombActions}>
+              <TouchableOpacity
+                style={styles.budgetBombOkButton}
+                onPress={()=>{
+                  budgetMoneyRainAnimation.current?.stop();
+                  setBudgetBombVisible(false);
+                }}
+              >
+                <Text style={styles.budgetBombOkText}>OK</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.budgetBombChangeButton}
+                onPress={()=>{
+                  budgetMoneyRainAnimation.current?.stop();
+                  setBudgetBombVisible(false);
+                  setTimeout(()=>listBudgetInputRef.current?.focus(),180);
+                }}
+              >
+                <Text style={styles.budgetBombChangeText}>Change Budget</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={renameListVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={()=>setRenameListVisible(false)}
+      >
+        <KeyboardAvoidingView
+          style={styles.renameBackdrop}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.renameCard}>
+            <Text style={styles.renameTitle}>Rename Imported List</Text>
+            <Text style={styles.renameHint}>Correct the name, then save it.</Text>
+            <TextInput
+              style={styles.renameInput}
+              value={listNameInput}
+              onChangeText={setListNameInput}
+              autoFocus
+              selectTextOnFocus
+              returnKeyType="done"
+              onSubmitEditing={()=>void saveRenamedList()}
+              blurOnSubmit
+            />
+            <View style={styles.renameActions}>
+              <TouchableOpacity
+                style={styles.renameCancelButton}
+                onPress={()=>setRenameListVisible(false)}
+              >
+                <Text style={styles.renameCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.renameSaveButton}
+                onPress={()=>void saveRenamedList()}
+              >
+                <Text style={styles.renameSaveText}>Save Name</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      <Modal
         visible={shareOptionsVisible}
         transparent
         animationType="slide"
@@ -2264,18 +2523,43 @@ export default function ShoppingListScreen(){
 
 const styles = StyleSheet.create({
   screen:{flex:1,backgroundColor:"#FBF7F2"},
+  budgetBombBackdrop:{flex:1,backgroundColor:"rgba(31,18,13,0.58)",alignItems:"center",justifyContent:"center",padding:24},
+  budgetBombCard:{width:"100%",maxWidth:360,padding:24,borderRadius:26,backgroundColor:"#FFF7EB",borderWidth:2,borderColor:"#E85D3F",alignItems:"center"},
+  budgetMoneyRainLayer:{position:"absolute",top:0,left:0,right:0,height:290,alignItems:"center",overflow:"hidden"},
+  budgetMoneyNote:{position:"absolute",top:0,fontSize:34},
+  budgetBombExplosion:{fontSize:42,marginBottom:-6},
+  budgetBombWallet:{fontSize:64,marginBottom:8},
+  budgetBombTitle:{fontSize:25,fontWeight:"900",color:"#9F2D26"},
+  budgetBombMessage:{marginTop:9,fontSize:16,lineHeight:23,fontWeight:"700",color:"#463E3B",textAlign:"center"},
+  budgetBombActions:{width:"100%",marginTop:23,flexDirection:"row"},
+  budgetBombOkButton:{flex:1,minHeight:48,marginRight:8,borderRadius:14,backgroundColor:"#FFFFFF",borderWidth:1,borderColor:"#E5D5CA",alignItems:"center",justifyContent:"center"},
+  budgetBombOkText:{fontSize:14,fontWeight:"900",color:"#6C5A51"},
+  budgetBombChangeButton:{flex:1.45,minHeight:48,borderRadius:14,backgroundColor:"#C94932",alignItems:"center",justifyContent:"center"},
+  budgetBombChangeText:{fontSize:14,fontWeight:"900",color:"#FFFFFF"},
   scrollContent:{paddingHorizontal:18,paddingTop:46},
   header:{flexDirection:"row",alignItems:"center"},
   backButton:{width:46,height:46,borderRadius:15,backgroundColor:"#E6EEE2",alignItems:"center",justifyContent:"center"},
   backText:{marginTop:-4,fontSize:38,color:"#1B5E20"},
   headerDetails:{flex:1,marginLeft:12},
+  listTitleRow:{flexDirection:"row",alignItems:"center"},
   title:{fontSize:25,fontWeight:"900",color:"#173B25"},
+  renameListButton:{marginLeft:8,width:34,height:34,borderRadius:10,backgroundColor:"#E8F5E9",alignItems:"center",justifyContent:"center"},
   subtitle:{marginTop:2,fontSize:11,fontWeight:"700",color:"#78907D"},
   listTabs:{marginTop:11,paddingRight:8,flexDirection:"row"},
   listTab:{minWidth:126,minHeight:45,marginRight:7,paddingHorizontal:12,borderRadius:12,backgroundColor:"#E6EEE2",borderWidth:1,borderColor:"#D4E0D0",alignItems:"center",justifyContent:"center"},
   listTabActive:{backgroundColor:"#2E7D32",borderColor:"#2E7D32"},
   listTabText:{fontSize:12,fontWeight:"900",color:"#40503F"},
   listTabTextActive:{color:"#FFFFFF"},
+  renameBackdrop:{flex:1,backgroundColor:"rgba(0,0,0,0.45)",alignItems:"center",justifyContent:"center",padding:24},
+  renameCard:{width:"100%",maxWidth:390,borderRadius:22,backgroundColor:"#FFFFFF",padding:22},
+  renameTitle:{fontSize:20,fontWeight:"900",color:"#173B25"},
+  renameHint:{marginTop:6,fontSize:13,color:"#607D6B"},
+  renameInput:{marginTop:18,borderWidth:1,borderColor:"#B9CCBA",borderRadius:12,paddingHorizontal:13,paddingVertical:12,fontSize:16,fontWeight:"700",color:"#173B25"},
+  renameActions:{marginTop:18,flexDirection:"row",justifyContent:"flex-end"},
+  renameCancelButton:{paddingHorizontal:15,paddingVertical:11},
+  renameCancelText:{fontSize:14,fontWeight:"800",color:"#607D6B"},
+  renameSaveButton:{marginLeft:8,paddingHorizontal:16,paddingVertical:11,borderRadius:10,backgroundColor:"#2E7D32"},
+  renameSaveText:{fontSize:14,fontWeight:"900",color:"#FFFFFF"},
   quickAddRow:{marginTop:15,flexDirection:"row",alignItems:"center"},
   readCollectedButton:{marginTop:10,paddingVertical:11,paddingHorizontal:13,borderRadius:15,backgroundColor:"#E8F5E9",borderWidth:1,borderColor:"#C8E6C9",flexDirection:"row",alignItems:"center"},
   readCollectedDetails:{flex:1,marginLeft:10},

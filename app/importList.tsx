@@ -6,6 +6,9 @@ import React, {
 import {
   ActivityIndicator,
   Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -198,6 +201,7 @@ export default function ImportListScreen(){
     });
     await selectList(imported.id);
 
+    Keyboard.dismiss();
     resetShareIntent();
     router.replace("/shoppingList");
   }
@@ -214,15 +218,23 @@ export default function ImportListScreen(){
     );
 
   return (
-    <View
-      style={[
-        styles.screen,
-        {
-          paddingTop:
-            Math.max(insets.top,18)
-        }
-      ]}
+    <KeyboardAvoidingView
+      style={styles.screen}
+      behavior={
+        Platform.OS === "ios"
+          ? "padding"
+          : "height"
+      }
     >
+      <View
+        style={[
+          styles.screen,
+          {
+            paddingTop:
+              Math.max(insets.top,18)
+          }
+        ]}
+      >
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -290,7 +302,10 @@ export default function ImportListScreen(){
               maxLength={60}
               autoFocus
               returnKeyType="done"
-              onSubmitEditing={()=>void finishImport()}
+              onSubmitEditing={()=>{
+                Keyboard.dismiss();
+                void finishImport();
+              }}
             />
             <Text style={styles.nameHint}>Type the name you want before saving. It will be saved as its own list and your existing lists will not be changed.</Text>
           </View>
@@ -298,6 +313,7 @@ export default function ImportListScreen(){
           <ScrollView
             style={styles.list}
             contentContainerStyle={styles.listContent}
+            keyboardShouldPersistTaps="handled"
           >
             {items.map((item,index)=>(
               <View
@@ -341,7 +357,10 @@ export default function ImportListScreen(){
           >
             <TouchableOpacity
               style={styles.addButton}
-              onPress={()=>void finishImport()}
+              onPress={()=>{
+                Keyboard.dismiss();
+                void finishImport();
+              }}
             >
               <Ionicons
                 name="add-circle-outline"
@@ -355,7 +374,8 @@ export default function ImportListScreen(){
           </View>
         </>
       )}
-    </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 
 }

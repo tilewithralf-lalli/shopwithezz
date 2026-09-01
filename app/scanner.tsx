@@ -161,6 +161,17 @@ export default function ScannerScreen(){
   }
 
 
+  function toggleCameraFacing(){
+
+    setCameraFacing(current=>
+      current === "front"
+        ? "back"
+        : "front"
+    );
+
+  }
+
+
   async function addReviewedItem(){
 
     const finalName =
@@ -906,7 +917,9 @@ export default function ScannerScreen(){
                 SOURCE
               </Text>
               <Text style={styles.barcodeValue}>
-                Front scan captured
+                {cameraFacing === "front"
+                  ? "Front scan captured"
+                  : "Back scan captured"}
               </Text>
             </View>
           </View>
@@ -1018,7 +1031,9 @@ export default function ScannerScreen(){
 
             {isPantryMode
               ? "Scan Pantry Item"
-              : "Front Barcode Scan"}
+              : cameraFacing === "front"
+                ? "Front Barcode Scan"
+                : "Back Barcode Scan"}
 
           </Text>
 
@@ -1026,7 +1041,9 @@ export default function ScannerScreen(){
 
             {isPantryMode
               ? "Scan something you need to buy"
-              : "Point the front camera at the barcode"}
+              : cameraFacing === "front"
+                ? "Point the front camera at the barcode"
+                : "Point the back camera at the barcode"}
 
           </Text>
 
@@ -1125,6 +1142,23 @@ export default function ScannerScreen(){
               )
 
           )}
+
+          <TouchableOpacity
+            style={styles.flipCameraButton}
+            onPress={toggleCameraFacing}
+            disabled={lookingUp || scanned}
+          >
+            <Ionicons
+              name="camera-reverse-outline"
+              size={20}
+              color="#FFFFFF"
+            />
+            <Text style={styles.flipCameraText}>
+              {cameraFacing === "front"
+                ? "Use Back Camera"
+                : "Use Front Camera"}
+            </Text>
+          </TouchableOpacity>
 
           {scanned && !lookingUp && (
 
@@ -1383,6 +1417,23 @@ const styles = StyleSheet.create({
 
   },
 
+  flipCameraButton:{
+    marginBottom:12,
+    paddingVertical:11,
+    paddingHorizontal:18,
+    borderRadius:16,
+    borderWidth:1,
+    borderColor:"#FFFFFF",
+    flexDirection:"row",
+    alignItems:"center"
+  },
+
+  flipCameraText:{
+    marginLeft:8,
+    color:"#FFFFFF",
+    fontSize:14,
+    fontWeight:"800"
+  },
 
   hint:{
 

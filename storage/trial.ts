@@ -9,9 +9,11 @@ import {
   TRIAL_DURATION_MILLISECONDS
 } from "../constants/trial";
 
+export type {TrialStatus} from "../constants/trial";
+
 
 const DEVELOPMENT_TRIAL_KEY =
-  "shopwithezz.trial.development.v1";
+  "shopwithezz.trial.development.v2";
 
 const PRODUCTION_TRIAL_KEY =
   "shopwithezz.trial.production.v1";
@@ -82,6 +84,15 @@ export async function loadTrialStatus(
   );
 
   return status;
+}
+
+export async function saveTrialState(
+  state:TrialState
+){
+  await SecureStore.setItemAsync(
+    trialKey(),
+    JSON.stringify(state)
+  );
 }
 
 

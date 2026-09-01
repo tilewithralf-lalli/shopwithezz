@@ -1,6 +1,7 @@
 import React, {
     useEffect,
-    useRef
+    useRef,
+    useState
 } from "react";
 
 import {
@@ -10,6 +11,7 @@ import {
 import {
     Href,
     Stack,
+    usePathname,
     useRouter
 } from "expo-router";
 
@@ -18,7 +20,8 @@ import {
     useShareIntentContext
 } from "expo-share-intent";
 
-import {PurchaseProvider} from "../contexts/PurchaseContext";
+import {PurchaseProvider, usePurchase} from "../contexts/PurchaseContext";
+import {loadTrialStatus} from "../storage/trial";
 
 const LIST_MIME = "application/vnd.shopwithezz.list+json";
 
@@ -80,6 +83,34 @@ function IncomingShareRouter(){
 
 }
 
+function TrialRouteGuard(){
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const {isLoading,isUnlocked} = usePurchase();
+  const [isExpired,setIsExpired] = useState(false);
+
+  useEffect(()=>{
+    if(isLoading || isUnlocked){
+      setIsExpired(false);
+      return;
+    }
+
+    loadTrialStatus().then(status=>{
+      setIsExpired(status.isExpired);
+    });
+  },[isLoading,isUnlocked,pathname]);
+
+  useEffect(()=>{
+    if(isExpired && pathname !== "/"){
+      router.replace("/" as Href);
+    }
+  },[isExpired,pathname,router]);
+
+  return null;
+
+}
+
 
 export default function RootLayout(){
 
@@ -89,6 +120,8 @@ export default function RootLayout(){
   return (
 
     <PurchaseProvider>
+
+    <TrialRouteGuard/>
 
     {
 

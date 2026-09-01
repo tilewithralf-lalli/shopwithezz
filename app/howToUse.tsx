@@ -20,7 +20,7 @@ const STEPS = [
   "Open Shopping List and add the things you need. You can type an item, scan it, or use Hands-Free.",
   "Add a price and quantity if you know them. Your estimated total, amount spent and budget bar update automatically.",
   "While shopping, tick an item when it goes into your trolley. Untick it if you need to put it back.",
-  "Use the tools on Home whenever you need to scan, speak, share, print, or read these instructions again."
+  "Use Scanner or Photo Item / Import Photo on Home when you need them. Open How to Use on Home whenever you want these instructions again."
 ] as const;
 
 const GUIDE_SECTIONS = [
@@ -32,7 +32,7 @@ const GUIDE_SECTIONS = [
   {
     title:"BUDGET, TOTALS AND THE COLOUR BAR",
     icon:"wallet-outline" as const,
-    text:"Type a budget on Home and press Done. The app adds up the prices and quantities in your current list. Green means comfortably within budget, the colour changes as you get closer, and red means you are close to or over budget. A blank budget means no limit has been set."
+    text:"Type a budget on Home and press Done. The app adds up the prices and quantities in your current list. Green means comfortably within budget, the colour changes as you get closer, and red means you are close to or over budget. Once your total goes over the budget, Budget Bomb gives two strong buzzes and an explosion popup. It tells you how much you are over and gives you OK or Change Budget. A blank budget means no limit has been set."
   },
   {
     title:"ADD, CHANGE OR REMOVE ITEMS",
@@ -47,27 +47,27 @@ const GUIDE_SECTIONS = [
   {
     title:"HANDS-FREE SHOPPING",
     icon:"mic-outline" as const,
-    text:"Open Hands-Free or Shopping List, tap the microphone and allow microphone access when asked. To start Shopping Mode, say “I need” first, for example “I need milk”. Then keep saying item names within 15 seconds. If the timer stops, say “I need” again."
+    text:"Open Shopping List, tap the microphone and allow microphone access when asked. To start Shopping Mode, say “I need” first, for example “I need milk”. Then keep saying item names within 15 seconds. If the timer stops, say “I need” again."
   },
   {
     title:"SHARING AND PRINTING",
     icon:"share-social-outline" as const,
-    text:"Use Share List on Home or in the list to make a PDF shopping list, send it using another app, or print it. Check the preview before sending or printing."
+    text:"Use Share List in Shopping List to make a PDF shopping list, send it using another app, or print it. Check the preview before sending or printing."
   },
   {
-    title:"IMPORTING A LIST",
+    title:"PHOTO ITEM / IMPORT PHOTO",
     icon:"document-text-outline" as const,
-    text:"Use Import a List from Settings to open a ShopWithEzz list that somebody shared with you. Read the preview carefully before choosing what to do. Never choose an option that replaces your current list unless you are certain you no longer need it."
+    text:"On Home, use Photo Item / Import Photo to take or choose a photo of an item label and price. Check the item name and price before adding it to your active shopping list."
   },
   {
     title:"SETTINGS, BACKUP AND RESTORE",
     icon:"cloud-outline" as const,
-    text:"Settings contains feedback, backup, restore, purchase and extra help. Use Backup regularly and save the file somewhere you can find again. Restore replaces your current ShopWithEzz data with the chosen backup, so make a fresh backup first if you are unsure."
+    text:"Settings contains your trial status and reminders, feedback, backup, restore, purchase and extra help. Use Backup regularly and save the file somewhere you can find again. Restore replaces your current ShopWithEzz data with the chosen backup, so make a fresh backup first if you are unsure."
   },
   {
     title:"TRIAL, UNLOCK AND HELP",
     icon:"shield-checkmark-outline" as const,
-    text:"Your 31-day trial lets you try ShopWithEzz before unlocking it with one payment. Settings can restore a previous Google Play purchase. If something does not work, use Send Feedback in Settings and describe what happened."
+    text:"Your 31-day trial lets you try ShopWithEzz before unlocking it with one payment. Trial reminders can be turned on or off in Settings. The planned A$35 one-time unlock is less than 10 cents a day over a year, with no subscription. If something does not work, use Send Feedback in Settings and describe what happened."
   }
 ] as const;
 

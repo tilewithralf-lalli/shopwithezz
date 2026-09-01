@@ -1,0 +1,11 @@
+SHOPWITHEZZ DOWNLOAD LINK TEST - SUCCESS
+
+If you can read this file, the download button on the ShopWithEzz public information page is working correctly.
+
+This is only a small test file.
+This is NOT the ShopWithEzz app.
+The approved Android app will be added only after every required test is complete.
+
+Designed & Created by Team Lalli61
+GSD - Get Stuff Done
+9 August 2026

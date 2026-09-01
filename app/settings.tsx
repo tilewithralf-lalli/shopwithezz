@@ -6,6 +6,7 @@ import {
   Modal,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -20,11 +21,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {markBackupCompleted} from "../storage/backupReminder";
 import {usePurchase} from "../contexts/PurchaseContext";
+import {loadTrialStatus, type TrialStatus} from "../storage/trial";
 
 const USER_NAME_KEY = "shopwithezz-user-name";
 const SESSION_KEY = "shopwithezz-v1-final-session-v1";
 const APP_KEY_PREFIX = "shopwithezz";
 const BACKUP_FORMAT = "shopwithezz-backup";
+const TRIAL_REMINDERS_ENABLED_KEY = "shopwithezz-trial-reminders-enabled";
 
 type BackupFile = {
   format:string;
@@ -38,10 +41,13 @@ export default function SettingsScreen(){
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const {isLoading:isPurchaseLoading,isPurchasing,isUnlocked,productPrice,purchaseUnlock,restorePurchase} = usePurchase();
+  const isFamilyEdition = Constants.expoConfig?.extra?.appEdition === "family";
   const [name,setName] = useState("");
   const [savingName,setSavingName] = useState(false);
   const [backupName,setBackupName] = useState("");
   const [backupNameVisible,setBackupNameVisible] = useState(false);
+  const [trialStatus,setTrialStatus] = useState<TrialStatus | null>(null);
+  const [trialRemindersEnabled,setTrialRemindersEnabled] = useState(true);
 
   function leaveSettings(){
     if(router.canGoBack()){
@@ -56,6 +62,28 @@ export default function SettingsScreen(){
       .then(saved=>setName(saved || ""))
       .catch(()=>Alert.alert("Profile", "Your profile could not be loaded."));
   },[]);
+
+  useEffect(()=>{
+    if(isFamilyEdition){
+      return;
+    }
+
+    void Promise.all([
+      loadTrialStatus(),
+      AsyncStorage.getItem(TRIAL_REMINDERS_ENABLED_KEY)
+    ]).then(([status,remindersEnabled])=>{
+      setTrialStatus(status);
+      setTrialRemindersEnabled(remindersEnabled !== "false");
+    });
+  },[isFamilyEdition]);
+
+  function setTrialReminders(enabled:boolean){
+    setTrialRemindersEnabled(enabled);
+    void AsyncStorage.setItem(
+      TRIAL_REMINDERS_ENABLED_KEY,
+      String(enabled)
+    );
+  }
 
   async function saveProfile(){
     const cleanName = name.trim();
@@ -95,6 +123,10 @@ export default function SettingsScreen(){
   async function createBackup(){
     try{
       const cleanLabel = backupName.trim();
+      if(!cleanLabel){
+        Alert.alert("Name Your Backup", "Please give this backup a name before saving it.");
+        return;
+      }
       const backup:BackupFile = {
         format:BACKUP_FORMAT,
         version:1,
@@ -102,16 +134,13 @@ export default function SettingsScreen(){
         ...(cleanLabel ? {label:cleanLabel} : {}),
         data:await appData()
       };
-      const stamp = backup.createdAt
-        .slice(0,19)
-        .replace(/[T:]/g,"-");
+      const backupDate = new Date(backup.createdAt);
+      const stamp = `${String(backupDate.getDate()).padStart(2,"0")}${backupDate.toLocaleString("en-AU",{month:"short"})}-${String(backupDate.getHours()).padStart(2,"0")}${String(backupDate.getMinutes()).padStart(2,"0")}`;
       const safeLabel = cleanLabel
         .replace(/[^a-z0-9]+/gi,"-")
         .replace(/^-+|-+$/g,"")
-        .slice(0,40);
-      const fileName = safeLabel
-        ? `ShopWithEzz-${safeLabel}-${stamp}.json`
-        : `ShopWithEzz-backup-${stamp}.json`;
+        .slice(0,24);
+      const fileName = `SWE-${safeLabel}-${stamp}.json`;
       const folder = await Directory.pickDirectoryAsync();
       const file = folder.createFile(
         fileName,
@@ -127,6 +156,15 @@ export default function SettingsScreen(){
     catch{
       Alert.alert("Backup Failed", "ShopWithEzz could not create the backup.");
     }
+  }
+
+  function confirmBackupName(){
+    if(!backupName.trim()){
+      Alert.alert("Name Your Backup", "Please give this backup a name before saving it.");
+      return;
+    }
+    setBackupNameVisible(false);
+    void createBackup();
   }
 
   async function chooseRestoreFile(){
@@ -259,24 +297,68 @@ export default function SettingsScreen(){
           </View>
         </View>
 
-        <Text style={styles.sectionLabel}>UPGRADE ANY TIME</Text>
+        <Text style={styles.sectionLabel}>{isFamilyEdition ? "FAMILY VERSION" : "UPGRADE ANY TIME"}</Text>
         <View style={styles.card}>
           <Row
-            icon={isUnlocked ? "checkmark-circle-outline" : "sparkles-outline"}
-            title={isUnlocked ? "Full Version Unlocked" : "Unlock ShopWithEzz"}
-            detail={isUnlocked
+            icon={isFamilyEdition || isUnlocked ? "checkmark-circle-outline" : "sparkles-outline"}
+            title={isFamilyEdition ? "Permanently Unlocked" : isUnlocked ? "Full Version Unlocked" : "Unlock ShopWithEzz"}
+            detail={isFamilyEdition
+              ? "Private Family & Friends edition — no purchase needed"
+              : isUnlocked
               ? "Your permanent Google Play unlock is active"
               : `${isPurchasing ? "Opening Google Play…" : `One payment of ${productPrice}`} — no subscription`}
             onPress={purchaseUnlock}
           />
-          <View style={styles.divider}/>
-          <Row
+          {!isFamilyEdition && <View style={styles.divider}/>}
+          {!isFamilyEdition && <Row
             icon="refresh-circle-outline"
             title="Restore Purchase"
             detail={isPurchaseLoading ? "Checking Google Play…" : "Restore an unlock bought with this Google account"}
             onPress={restorePurchase}
-          />
+          />}
         </View>
+
+        {!isFamilyEdition && <>
+          <Text style={styles.sectionLabel}>TRIAL & REMINDERS</Text>
+          <View style={styles.card}>
+            <View style={styles.trialSettingsRow}>
+              <View style={styles.rowIcon}>
+                <Ionicons name="time-outline" size={22} color="#426047"/>
+              </View>
+              <View style={styles.rowText}>
+                <Text style={styles.rowTitle}>
+                  {trialStatus?.isExpired
+                    ? "Trial Finished"
+                    : "31-Day Trial"}
+                </Text>
+                <Text style={styles.rowDetail}>
+                  {trialStatus
+                    ? trialStatus.isExpired
+                      ? "Your shopping data is safe. Unlock any time."
+                      : `${trialStatus.daysRemaining} day${trialStatus.daysRemaining === 1 ? "" : "s"} remaining`
+                    : "Checking your trial…"}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.divider}/>
+            <View style={styles.trialSettingsRow}>
+              <View style={styles.rowIcon}>
+                <Ionicons name="notifications-outline" size={22} color="#426047"/>
+              </View>
+              <View style={styles.rowText}>
+                <Text style={styles.rowTitle}>Trial Reminders</Text>
+                <Text style={styles.rowDetail}>Once a day during the final 7 days, when you open the app</Text>
+              </View>
+              <Switch
+                value={trialRemindersEnabled}
+                onValueChange={setTrialReminders}
+                trackColor={{false:"#D8DFD7",true:"#86A47E"}}
+                thumbColor="#FFFFFF"
+                accessibilityLabel="Turn trial reminders on or off"
+              />
+            </View>
+          </View>
+        </>}
 
         <Text style={styles.sectionLabel}>EXTRAS</Text>
         <View style={styles.card}>
@@ -285,6 +367,8 @@ export default function SettingsScreen(){
 
         <Text style={styles.sectionLabel}>HELP & DATA</Text>
         <View style={styles.card}>
+          <Row icon="help-circle-outline" title="How to Use" detail="Simple step-by-step help" onPress={()=>router.push("/howToUse")}/>
+          <View style={styles.divider}/>
           <Row icon="chatbubble-ellipses-outline" title="Send Feedback" detail="Open your email app with app details" onPress={sendFeedback}/>
           <View style={styles.divider}/>
           <Row icon="cloud-upload-outline" title="Backup" detail="Save a named copy of all ShopWithEzz data" onPress={startBackup}/>
@@ -306,7 +390,7 @@ export default function SettingsScreen(){
             <Text style={styles.footerTitle}>Document Information</Text>
             <Text style={styles.footerInfo}>Version: {Constants.expoConfig?.version || "1.1.0"}</Text>
             <Text style={styles.footerInfo}>Created: 28 July 2026</Text>
-            <Text style={styles.footerInfo}>Last Updated: 09 August 2026</Text>
+            <Text style={styles.footerInfo}>Last Updated: 28 August 2026</Text>
             <View style={styles.footerDivider}/>
             <Text style={styles.footerBrand}>Designed &amp; Created by Team Lalli61</Text>
             <Text style={styles.footerMotto}>GSD — Get Stuff Done</Text>
@@ -324,20 +408,17 @@ export default function SettingsScreen(){
         <View style={styles.backupModalBackdrop}>
           <View style={styles.backupModalCard}>
             <Text style={styles.backupModalTitle}>Name Your Backup</Text>
-            <Text style={styles.backupModalHint}>For example: Before Saturday shop</Text>
+            <Text style={styles.backupModalHint}>Give this backup a name, for example: Before Saturday shop</Text>
             <TextInput
               style={styles.backupModalInput}
               value={backupName}
               onChangeText={setBackupName}
-              placeholder="Optional backup name"
+              placeholder="Backup name"
               placeholderTextColor="#8A998C"
               autoFocus
               maxLength={40}
               returnKeyType="done"
-              onSubmitEditing={()=>{
-                setBackupNameVisible(false);
-                void createBackup();
-              }}
+              onSubmitEditing={confirmBackupName}
             />
             <View style={styles.backupModalActions}>
               <TouchableOpacity
@@ -348,10 +429,7 @@ export default function SettingsScreen(){
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.backupContinueButton}
-                onPress={()=>{
-                  setBackupNameVisible(false);
-                  void createBackup();
-                }}
+                onPress={confirmBackupName}
               >
                 <Text style={styles.backupContinueText}>Choose Folder</Text>
               </TouchableOpacity>
@@ -378,6 +456,7 @@ const styles = StyleSheet.create({
   saveButton:{marginLeft:9,paddingVertical:12,paddingHorizontal:17,borderRadius:12,backgroundColor:"#426B48"},
   saveText:{fontSize:13,fontWeight:"900",color:"#FFFFFF"},
   row:{minHeight:72,flexDirection:"row",alignItems:"center",paddingVertical:11},
+  trialSettingsRow:{minHeight:72,flexDirection:"row",alignItems:"center",paddingVertical:11},
   rowIcon:{width:42,height:42,borderRadius:13,backgroundColor:"#EAF1E8",alignItems:"center",justifyContent:"center"},
   dangerIcon:{backgroundColor:"#FDE9E6"},
   rowText:{flex:1,marginHorizontal:12},
