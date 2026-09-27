@@ -28,7 +28,7 @@
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ],
-      "versionCode": 10
+      "versionCode": 13
     },
     "web": {
       "output": "static",

@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {Image} from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import {Images} from "react-native-nitro-image";
@@ -7,9 +7,7 @@ import {useRouter} from "expo-router";
 import {Ionicons} from "@expo/vector-icons";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {useShareIntentContext} from "expo-share-intent";
-import {getActiveList, saveActiveSession} from "../storage/shoppingLists";
-
-type ShoppingItem = {id:string; name:string; price:number; purchased:boolean; quantity:number};
+import {getActiveList} from "../storage/shoppingLists";
 
 function tidyText(text:string){
   return text.split(/\r?\n/).map(line=>line.replace(/\s+/g," ").trim()).filter(line=>line.length > 1 && line.length < 100);
@@ -17,6 +15,7 @@ function tidyText(text:string){
 
 function parseShelfPrice(value:string){
   const cleaned = value.replace(/\s/g,"");
+  if(/c$/i.test(cleaned)) return Number(cleaned.slice(0,-1).replace(",",".")) / 100;
   if(/[.,]/.test(cleaned)){
     return Number(cleaned.replace(",","."));
   }
@@ -28,13 +27,19 @@ function parseShelfPrice(value:string){
   return Number(cleaned);
 }
 
+function parsePriceInput(value:string){
+  const clean = value.trim().replace(/\s/g,"");
+  if(/c$/i.test(clean)) return (Number(clean.slice(0,-1).replace(",",".")) || 0) / 100;
+  return Number(clean.replace(",",".")) || 0;
+}
+
 function prepareResult(text:string){
   const lines = tidyText(text);
   const pricePattern = /(?:\$|aud\s*)\s*(\d{1,4}(?:[.,]\d{2})?)/i;
   const ignoredPriceLine = /\b(?:was|save)\b|(?:\$|aud\s*)?\s*\d+(?:[.,]\d{2})?\s*(?:\/|\bper\b)\s*(?:100\s*(?:g|ml)|kg|g|l|ml|ea\b)/i;
   // Big shelf prices are often recognised without a dollar sign (for example, "14").
   // Prefer that standalone price over a smaller unit price such as "$5.28 per 100g".
-  const standalonePricePattern = /^\s*\$?\s*(\d{1,4}(?:[.,]\d{2})?)\s*$/;
+  const standalonePricePattern = /^\s*\$?\s*(\d{1,4}(?:[.,]\d{2})?|\d{1,3}\s*c)\s*$/i;
   const standalonePriceLine = lines.findIndex(line=>standalonePricePattern.test(line) && !ignoredPriceLine.test(line));
   const priceLine = standalonePriceLine >= 0 ? standalonePriceLine : lines.findIndex(line=>pricePattern.test(line) && !ignoredPriceLine.test(line));
   const selectedPattern = standalonePriceLine >= 0 ? standalonePricePattern : pricePattern;
@@ -63,8 +68,20 @@ export default function ImportPhotoScreen(){
   const [rawText,setRawText] = useState("");
   const [reading,setReading] = useState(false);
   const [saving,setSaving] = useState(false);
+  const [shoppingListTotal,setShoppingListTotal] = useState(0);
 
   useEffect(()=>{ if(sharedImage?.path){ setImageUri(sharedImage.path); } },[sharedImage?.path]);
+
+  useEffect(()=>{
+    let active = true;
+    getActiveList().then(list=>{
+      if(active){
+        setShoppingListTotal(list.session.items.reduce((total,item)=>
+          total + (Number(item.price) || 0) * Math.max(1,Number(item.quantity) || 1),0));
+      }
+    }).catch(()=>{});
+    return ()=>{ active=false; };
+  },[]);
 
   useEffect(()=>{
     if(!imageUri || Platform.OS !== "android"){ return; }
@@ -87,6 +104,16 @@ export default function ImportPhotoScreen(){
             const shelfResult = prepareResult(shelfText);
             text = [text,shelfText].filter(Boolean).join("\n");
             prepared = {name:shelfResult.name || prepared.name,price:prepared.price || shelfResult.price};
+
+            if(!prepared.price){
+              const priceBand = await original.cropAsync(0, original.height * 0.38, original.width, original.height * 0.68);
+              const enlargedPriceBand = await priceBand.resizeAsync(priceBand.width * 2, priceBand.height * 2);
+              const priceBandPath = await enlargedPriceBand.saveToTemporaryFileAsync("jpg",100);
+              const priceText = tidyText((await extractTextFromImage(`file://${priceBandPath}`)).join("\n")).join("\n");
+              const priceResult = prepareResult(priceText);
+              text = [text,priceText].filter(Boolean).join("\n");
+              prepared = {name:prepared.name || priceResult.name,price:priceResult.price};
+            }
           }catch{
             // The first read is still usable for price-only labels.
           }
@@ -142,21 +169,13 @@ export default function ImportPhotoScreen(){
 
   function leave(){ resetShareIntent(); router.replace("/"); }
 
-  async function addToList(){
+  function addToList(){
     const name = itemName.trim();
-    const price = Number(itemPrice.replace(",","."));
+    const price = parsePriceInput(itemPrice);
     if(!name){ Alert.alert("Check Item Name", "Type the item name before adding it."); return; }
     if(itemPrice.trim() && (!Number.isFinite(price) || price < 0)){ Alert.alert("Check Price", "Enter a valid price, for example 4.80."); return; }
-    setSaving(true);
-    try{
-      const activeList = await getActiveList();
-      const item:ShoppingItem = {id:`photo-${Date.now()}`,name,price:itemPrice.trim()?price:0,purchased:false,quantity:1};
-      await saveActiveSession({...activeList.session,spent:0,items:[...activeList.session.items,item]});
-      resetShareIntent();
-      setImageUri(null); setItemName(""); setItemPrice(""); setRawText("");
-      Alert.alert("Added To Shopping List",`${name} has been added. You can take or choose another photo, or press X when you are finished.`);
-    }catch{ Alert.alert("Could Not Add Item","Please try again."); }
-    finally{ setSaving(false); }
+    resetShareIntent();
+    router.replace({pathname:"/addItem",params:{name,price:itemPrice.trim()?price.toFixed(2):"",quantity:"1",source:"photo"}});
   }
 
   if(Platform.OS !== "android"){
@@ -174,8 +193,9 @@ export default function ImportPhotoScreen(){
     </View>;
   }
 
-  return <ScrollView style={styles.screen} contentContainerStyle={[styles.content,{paddingTop:insets.top+14,paddingBottom:insets.bottom+24}]} keyboardShouldPersistTaps="handled">
-    <View style={styles.header}><TouchableOpacity style={styles.closeButton} onPress={leave}><Ionicons name="close" size={22} color="#536650"/></TouchableOpacity><View style={styles.headerText}><Text style={styles.eyebrow}>PHOTO / IMPORT EXPERIMENT</Text><Text style={styles.title}>Check Item And Price</Text></View></View>
+  return <KeyboardAvoidingView style={styles.screen} behavior="height" keyboardVerticalOffset={0}>
+  <ScrollView style={styles.screen} contentContainerStyle={[styles.content,{paddingTop:insets.top+14,paddingBottom:insets.bottom+180}]} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
+    <View style={styles.header}><TouchableOpacity style={styles.closeButton} onPress={leave}><Ionicons name="close" size={22} color="#536650"/></TouchableOpacity><View style={styles.headerText}><Text style={styles.eyebrow}>PHOTO / IMPORT EXPERIMENT</Text><Text style={styles.title}>Check Item And Price</Text></View></View><View style={styles.amountBar}><Text style={styles.amountLabel}>ACTUAL AMOUNT</Text><Text style={styles.amountValue}>${parsePriceInput(itemPrice).toFixed(2)}</Text></View><View style={styles.listTotalBar}><Text style={styles.listTotalLabel}>SHOPPING LIST TOTAL</Text><Text style={styles.listTotalValue}>${(shoppingListTotal + parsePriceInput(itemPrice)).toFixed(2)}</Text></View>
     <View style={styles.photoCard}><Image source={{uri:imageUri}} style={styles.photo} contentFit="contain"/></View>
     <View style={styles.switchRow}><TouchableOpacity style={styles.switchButton} onPress={takePhoto}><Ionicons name="camera-outline" size={17} color="#536650"/><Text style={styles.switchText}>Take Another</Text></TouchableOpacity><TouchableOpacity style={styles.switchButton} onPress={choosePhoto}><Ionicons name="images-outline" size={17} color="#536650"/><Text style={styles.switchText}>Choose Photo</Text></TouchableOpacity></View>
     <TouchableOpacity style={styles.rotateButton} onPress={turnRightWayUp} disabled={reading}><Ionicons name="sync-outline" size={18} color="#536650"/><Text style={styles.rotateText}>Turn Right Way Up</Text></TouchableOpacity>
@@ -186,9 +206,11 @@ export default function ImportPhotoScreen(){
     </View>
     <TouchableOpacity style={[styles.addButton,(reading||saving||!itemName.trim())&&styles.addButtonDisabled]} onPress={addToList} disabled={reading||saving||!itemName.trim()}>{saving?<ActivityIndicator color="#fff"/>:<><Ionicons name="bag-add-outline" size={20} color="#fff"/><Text style={styles.addButtonText}>Add To Shopping List</Text></>}</TouchableOpacity>
     <Text style={styles.privacy}>Your photo is read privately on this phone.</Text>
-  </ScrollView>;
+  </ScrollView>
+  </KeyboardAvoidingView>;
 }
 
 const styles = StyleSheet.create({
+  amountBar:{marginTop:14,paddingHorizontal:16,paddingVertical:12,borderRadius:16,backgroundColor:"#E8F5E9",borderWidth:1,borderColor:"#B7DDBA",flexDirection:"row",alignItems:"center",justifyContent:"space-between"},amountLabel:{color:"#2E7D32",fontSize:12,fontWeight:"900",letterSpacing:0.7},amountValue:{color:"#1B5E20",fontSize:24,fontWeight:"900"},listTotalBar:{marginTop:8,paddingHorizontal:16,paddingVertical:10,borderRadius:16,backgroundColor:"#F3F7F1",borderWidth:1,borderColor:"#D8E6DA",flexDirection:"row",alignItems:"center",justifyContent:"space-between"},listTotalLabel:{color:"#536650",fontSize:11,fontWeight:"900",letterSpacing:0.6},listTotalValue:{color:"#3E4B3C",fontSize:20,fontWeight:"900"},
   screen:{flex:1,backgroundColor:"#FBF8F5"},content:{paddingHorizontal:18},empty:{flex:1,paddingHorizontal:24,backgroundColor:"#FBF8F5",alignItems:"center",justifyContent:"center"},emptyTitle:{marginTop:12,fontSize:21,fontWeight:"900",color:"#463E3B",textAlign:"center"},emptyText:{marginTop:9,fontSize:15,lineHeight:22,fontWeight:"600",color:"#655F59",textAlign:"center"},primaryButton:{height:55,alignSelf:"stretch",marginTop:25,borderRadius:17,backgroundColor:"#7B8F75",alignItems:"center",justifyContent:"center",flexDirection:"row"},primaryButtonText:{marginLeft:8,fontSize:15,fontWeight:"900",color:"#fff"},secondaryButton:{height:55,alignSelf:"stretch",marginTop:10,borderRadius:17,borderWidth:1,borderColor:"#B7C6B2",backgroundColor:"#EDF3EB",alignItems:"center",justifyContent:"center",flexDirection:"row"},secondaryButtonText:{marginLeft:8,fontSize:15,fontWeight:"900",color:"#536650"},backLink:{marginTop:18,padding:10},backLinkText:{fontSize:13,fontWeight:"800",color:"#536650"},header:{flexDirection:"row",alignItems:"center"},closeButton:{width:44,height:44,borderRadius:15,backgroundColor:"#E6EEE2",alignItems:"center",justifyContent:"center"},headerText:{flex:1,marginLeft:12},eyebrow:{fontSize:9,fontWeight:"900",letterSpacing:1.1,color:"#A28E83"},title:{marginTop:3,fontSize:22,fontWeight:"900",color:"#3E4B3C"},photoCard:{height:270,marginTop:18,padding:8,borderRadius:22,backgroundColor:"#F3E7E2",borderWidth:1,borderColor:"#E7D8D1",overflow:"hidden"},photo:{width:"100%",height:"100%",borderRadius:16},switchRow:{flexDirection:"row",gap:10,marginTop:11},switchButton:{flex:1,height:42,borderRadius:14,backgroundColor:"#EDF3EB",alignItems:"center",justifyContent:"center",flexDirection:"row"},switchText:{marginLeft:6,fontSize:12,fontWeight:"900",color:"#536650"},rotateButton:{height:42,marginTop:10,borderRadius:14,backgroundColor:"#EDF3EB",alignItems:"center",justifyContent:"center",flexDirection:"row"},rotateText:{marginLeft:6,fontSize:12,fontWeight:"900",color:"#536650"},readerCard:{marginTop:14,padding:14,borderRadius:20,backgroundColor:"#fff",borderWidth:1,borderColor:"#EEE7E0"},readerHeading:{flexDirection:"row",alignItems:"center"},readerIcon:{width:38,height:38,borderRadius:13,backgroundColor:"#7B8F75",alignItems:"center",justifyContent:"center"},readerHeadingText:{flex:1,marginLeft:10},readerTitle:{fontSize:16,fontWeight:"900",color:"#463E3B"},readerHint:{marginTop:2,fontSize:10,fontWeight:"700",color:"#947F75"},label:{marginTop:14,fontSize:10,fontWeight:"900",letterSpacing:1,color:"#947F75"},field:{height:48,marginTop:5,paddingHorizontal:13,borderRadius:14,backgroundColor:"#F7F3EE",fontSize:16,fontWeight:"800",color:"#3E4B3C"},readText:{marginTop:13,fontSize:11,lineHeight:17,color:"#655F59"},addButton:{height:54,marginTop:14,borderRadius:18,backgroundColor:"#7B8F75",flexDirection:"row",alignItems:"center",justifyContent:"center",elevation:3},addButtonDisabled:{backgroundColor:"#B8C5B4",elevation:0},addButtonText:{marginLeft:8,fontSize:14,fontWeight:"900",color:"#fff"},privacy:{marginTop:10,textAlign:"center",fontSize:10,fontWeight:"700",color:"#947F75"}
 });

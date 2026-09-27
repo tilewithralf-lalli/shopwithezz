@@ -15,13 +15,6 @@ const editions = {
     scheme: "shopwithezz-trial",
     edition: "trial"
   },
-  family: {
-    name: "ShopWithEzz Family",
-    androidPackage: "com.lalli61.shopwithezz.family",
-    iosBundleIdentifier: "com.lalli61.shopwithezz.family",
-    scheme: "shopwithezz",
-    edition: "family"
-  },
   google: {
     name: "ShopWithEzz",
     androidPackage: "com.lalli61.shopwithezz",

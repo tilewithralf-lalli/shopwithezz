@@ -21,11 +21,18 @@ import {
 } from "expo-router";
 
 import {
-  addShoppingItem
-} from "../storage/shopping";
+  getActiveList,
+  saveActiveSession
+} from "../storage/shoppingLists";
 
 
 export default function AddItemScreen(){
+
+  function parsePriceInput(value:string){
+    const clean = value.trim().replace(/\s/g,"");
+    if(/c$/i.test(clean)) return (Number(clean.slice(0,-1).replace(",",".")) || 0) / 100;
+    return Number(clean.replace(",",".")) || 0;
+  }
 
   const router =
     useRouter();
@@ -60,8 +67,24 @@ export default function AddItemScreen(){
       String(params.price || "")
     );
 
+  const [shoppingListTotal,setShoppingListTotal] = useState(0);
+
+  React.useEffect(()=>{
+    getActiveList().then(list=>setShoppingListTotal(list.session.items.reduce((total,item)=>
+      total + (Number(item.price) || 0) * Math.max(1,Number(item.quantity) || 1),0))).catch(()=>{});
+  },[]);
+
   const barcode =
     String(params.barcode || "");
+
+  const numericPrice =
+    parsePriceInput(price);
+
+  const numericQuantity =
+    Math.max(1, Math.floor(Number(quantity) || 1));
+
+  const actualAmount =
+    numericPrice * numericQuantity;
 
 
   function openScanner(){
@@ -90,19 +113,6 @@ export default function AddItemScreen(){
   }
 
 
-  function showPriceInput(){
-
-    setTimeout(()=>{
-
-      scrollViewRef.current?.scrollToEnd({
-        animated:true
-      });
-
-    },250);
-
-  }
-
-
   async function saveItem(){
 
     if(!name.trim()){
@@ -116,23 +126,22 @@ export default function AddItemScreen(){
 
     }
 
-    const cleanPrice =
-      price
-        .replace(",", ".")
-        .trim();
+    const cleanPrice = parsePriceInput(price);
 
-    await addShoppingItem({
-
-      name:name.trim(),
-
-      store:storeName,
-
-      quantity:
-        parseInt(quantity,10) || 1,
-
-      price:
-        parseFloat(cleanPrice) || 0
-
+    const activeList = await getActiveList();
+    await saveActiveSession({
+      ...activeList.session,
+      items:[
+        ...activeList.session.items,
+        {
+          id:`item-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
+          name:name.trim(),
+          price:cleanPrice,
+          quantity:parseInt(quantity,10) || 1,
+          purchased:false,
+          barcode
+        }
+      ]
     });
 
     router.back();
@@ -146,11 +155,7 @@ export default function AddItemScreen(){
 
       style={styles.keyboardView}
 
-      behavior={
-        Platform.OS === "ios"
-          ? "padding"
-          : "height"
-      }
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
 
       keyboardVerticalOffset={0}
 
@@ -160,13 +165,15 @@ export default function AddItemScreen(){
 
         ref={scrollViewRef}
 
-        style={styles.container}
+        style={[styles.container,{transform:[{scale:0.92}],width:"108.7%",marginLeft:"-4.35%"}]}
 
         contentContainerStyle={
           styles.content
         }
 
         keyboardShouldPersistTaps="handled"
+
+        scrollEnabled={false}
 
         showsVerticalScrollIndicator={false}
 
@@ -185,36 +192,15 @@ export default function AddItemScreen(){
 
         </View>
 
+        <View style={styles.amountBar}>
+          <Text style={styles.amountLabel}>ACTUAL AMOUNT</Text>
+          <Text style={styles.amountValue}>${actualAmount.toFixed(2)}</Text>
+        </View>
 
-        <TouchableOpacity
-
-          style={styles.scanButton}
-
-          onPress={openScanner}
-
-        >
-
-          <Text style={styles.scanButtonIcon}>
-            📷
-          </Text>
-
-          <View style={styles.scanButtonDetails}>
-
-            <Text style={styles.scanButtonTitle}>
-              Scan Barcode
-            </Text>
-
-            <Text style={styles.scanButtonSubtitle}>
-              Scan a product to find its name
-            </Text>
-
-          </View>
-
-          <Text style={styles.scanArrow}>
-            ›
-          </Text>
-
-        </TouchableOpacity>
+        <View style={styles.listTotalBar}>
+          <Text style={styles.listTotalLabel}>SHOPPING LIST TOTAL</Text>
+          <Text style={styles.listTotalValue}>${(shoppingListTotal + actualAmount).toFixed(2)}</Text>
+        </View>
 
 
         {barcode !== "" && (
@@ -320,8 +306,6 @@ export default function AddItemScreen(){
               value={price}
 
               onChangeText={setPrice}
-
-              onFocus={showPriceInput}
 
             />
 
@@ -439,6 +423,12 @@ const styles = StyleSheet.create({
   },
 
 
+  amountBar:{marginTop:8,paddingHorizontal:14,paddingVertical:8,borderRadius:14,backgroundColor:"#E8F5E9",borderWidth:1,borderColor:"#B7DDBA",flexDirection:"row",alignItems:"center",justifyContent:"space-between"},
+  amountLabel:{color:"#2E7D32",fontSize:12,fontWeight:"900",letterSpacing:0.7},
+  amountValue:{color:"#1B5E20",fontSize:21,fontWeight:"900"},
+  listTotalBar:{marginTop:6,paddingHorizontal:14,paddingVertical:7,borderRadius:14,backgroundColor:"#F3F7F1",borderWidth:1,borderColor:"#D8E6DA",flexDirection:"row",alignItems:"center",justifyContent:"space-between"},
+  listTotalLabel:{color:"#536650",fontSize:11,fontWeight:"900",letterSpacing:0.6},
+  listTotalValue:{color:"#3E4B3C",fontSize:18,fontWeight:"900"},
   scanButton:{
 
     backgroundColor:"#2E7D32",

@@ -73,6 +73,9 @@ const TRIAL_REMINDERS_ENABLED_KEY =
 const TRIAL_REMINDER_DAY_KEY =
   "shopwithezz-trial-last-reminder-day";
 
+const WALKTHROUGH_SEEN_KEY =
+  "shopwithezz-walkthrough-seen-v2";
+
 type ShoppingItem = {
   id:string;
   name:string;
@@ -212,6 +215,17 @@ export default function HomeScreen(){
   const [nameModalVisible,setNameModalVisible] =
     useState(false);
 
+  const [walkthroughVisible,setWalkthroughVisible] = useState(false);
+  const [walkthroughStep,setWalkthroughStep] = useState(0);
+
+  const walkthroughSteps = [
+    ["Welcome to ShopWithEzz","Plan your shopping in one simple place. Create a list, add each item, and keep prices and quantities together so you know what you are buying."],
+    ["Build your list","Open Shopping List to add items by typing or voice. Tap an item to edit its name, price or quantity. The actual amount and shopping-list total update as you change them."],
+    ["Use the tools","Use Scanner for product barcodes and Photo / Import for an item label or price. Always check the detected name and price before adding the item to your list."],
+    ["Track your spending","Set your shopping amount on Home and watch the spending progress. If the list goes over it, ShopWithEzz shows the over-budget alert so you can decide what to change."],
+    ["You are ready","Start with your shopping list and mark items as you collect them. You can open How to Use later from Home or Settings whenever you want a reminder."]
+  ] as const;
+
   const [budgetInput,setBudgetInput] =
     useState("");
 
@@ -228,6 +242,15 @@ export default function HomeScreen(){
   const [homeListItemCount,setHomeListItemCount] = useState(0);
   const [importedList,setImportedList] =
     useState<{id:string;name:string;itemCount:number} | null>(null);
+
+  useEffect(()=>{
+    setWalkthroughVisible(true);
+  },[]);
+
+  function closeWalkthrough(){
+    setWalkthroughVisible(false);
+    void AsyncStorage.setItem(WALKTHROUGH_SEEN_KEY,"1");
+  }
 
 
   useFocusEffect(
@@ -332,10 +355,10 @@ export default function HomeScreen(){
       );
 
       Alert.alert(
-        "Your ShopWithEzz Trial",
+        "Your ShopWithEzz Access",
         trialDaysRemaining === 1
-          ? "Your trial ends tomorrow. You can unlock ShopWithEzz any time in Settings."
-          : `${trialDaysRemaining} days remain in your trial. You can unlock ShopWithEzz any time in Settings.`
+          ? "Your access period ends tomorrow. You can purchase yearly access any time in Settings."
+          : `${trialDaysRemaining} days remain in your access period. You can purchase yearly access any time in Settings.`
       );
     });
   },[
@@ -642,10 +665,10 @@ export default function HomeScreen(){
             <Ionicons name="lock-closed" size={38} color="#9F2D26"/>
           </View>
           <Text style={styles.trialLockEyebrow}>
-            {__DEV__ ? "TEST TRIAL FINISHED" : "FREE TRIAL FINISHED"}
+            {__DEV__ ? "TEST ACCESS PERIOD FINISHED" : "ACCESS PERIOD FINISHED"}
           </Text>
           <Text style={styles.trialLockTitle}>
-            Your ShopWithEzz trial has expired
+            Your ShopWithEzz access period has ended
           </Text>
           <Text style={styles.trialLockMessage}>
             Your shopping information is still safe. Unlock ShopWithEzz to keep using the app.
@@ -679,9 +702,9 @@ export default function HomeScreen(){
               activeOpacity={0.84}
               onPress={restartTestTrial}
               accessibilityRole="button"
-              accessibilityLabel="Restart 31-day test trial"
+              accessibilityLabel="Restart 31-day test access period"
             >
-              <Text style={styles.restartTrialButtonText}>RESTART 31-DAY TEST</Text>
+              <Text style={styles.restartTrialButtonText}>RESTART 31-DAY ACCESS</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -1053,6 +1076,26 @@ export default function HomeScreen(){
 
       </ScrollView>
 
+
+      <Modal
+        visible={walkthroughVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={closeWalkthrough}
+      >
+        <View style={styles.walkthroughOverlay}>
+          <View style={styles.walkthroughCard}>
+            <Text style={styles.walkthroughIcon}>🛒</Text>
+            <Text style={styles.walkthroughTitle}>{walkthroughSteps[walkthroughStep][0]}</Text>
+            <Text style={styles.walkthroughText}>{walkthroughSteps[walkthroughStep][1]}</Text>
+            <Text style={styles.walkthroughProgress}>{walkthroughStep + 1} of {walkthroughSteps.length}</Text>
+            <View style={styles.walkthroughButtons}>
+              <TouchableOpacity style={styles.walkthroughSkip} onPress={closeWalkthrough}><Text style={styles.walkthroughSkipText}>Skip</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.walkthroughNext} onPress={()=>walkthroughStep === walkthroughSteps.length - 1 ? closeWalkthrough() : setWalkthroughStep(step=>step + 1)}><Text style={styles.walkthroughNextText}>{walkthroughStep === walkthroughSteps.length - 1 ? "Done" : "Next"}</Text></TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       <Modal
         visible={nameModalVisible}
@@ -1673,6 +1716,18 @@ const styles = StyleSheet.create({
     marginTop:8,
     backgroundColor:"#DED7D0"
   },
+
+  walkthroughOverlay:{flex:1,backgroundColor:"rgba(31,18,13,0.58)",alignItems:"center",justifyContent:"center",padding:24},
+  walkthroughCard:{width:"100%",maxWidth:380,padding:24,borderRadius:26,backgroundColor:"#FFFDF8",alignItems:"center"},
+  walkthroughIcon:{fontSize:48,marginBottom:8},
+  walkthroughTitle:{fontSize:24,fontWeight:"900",color:"#173B25",textAlign:"center"},
+  walkthroughText:{marginTop:12,fontSize:16,lineHeight:24,fontWeight:"600",color:"#5F6D63",textAlign:"center"},
+  walkthroughProgress:{marginTop:18,fontSize:12,fontWeight:"900",color:"#78907D"},
+  walkthroughButtons:{width:"100%",marginTop:20,flexDirection:"row",alignItems:"center"},
+  walkthroughSkip:{flex:1,height:48,alignItems:"center",justifyContent:"center"},
+  walkthroughSkipText:{fontSize:15,fontWeight:"900",color:"#78907D"},
+  walkthroughNext:{flex:1.3,height:48,borderRadius:14,backgroundColor:"#7B8F75",alignItems:"center",justifyContent:"center"},
+  walkthroughNextText:{fontSize:15,fontWeight:"900",color:"#FFFFFF"},
 
   modalOverlay:{
     flex:1,

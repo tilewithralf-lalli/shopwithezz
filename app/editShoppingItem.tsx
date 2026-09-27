@@ -32,6 +32,12 @@ import {
   ShoppingCategory
 } from "../constants/shoppingCategories";
 
+function parsePriceInput(value:string){
+  const clean = value.trim().replace(/\s/g,"");
+  if(/c$/i.test(clean)) return (Number(clean.slice(0,-1).replace(",",".")) || 0) / 100;
+  return Number(clean.replace(",","."));
+}
+
 
 const SESSION_KEY =
   "shopwithezz-v1-final-session-v1";
@@ -182,15 +188,7 @@ export default function EditShoppingItemScreen(){
     const cleanName =
       name.trim();
 
-    const cleanPrice =
-      price
-        .replace(",", ".")
-        .trim();
-
-    const priceNumber =
-      cleanPrice === ""
-        ? 0
-        : Number(cleanPrice);
+    const priceNumber = price.trim() === "" ? 0 : parsePriceInput(price);
 
     const quantityNumber =
       Math.max(
@@ -497,7 +495,7 @@ export default function EditShoppingItemScreen(){
               Math.max(
                 insets.top,
                 24
-              ),
+              ) + 110,
 
             paddingBottom:
               Math.max(
@@ -555,6 +553,17 @@ export default function EditShoppingItemScreen(){
 
 
         </View>
+
+        {loaded && <View style={styles.amountBar}>
+          <Text style={styles.amountLabel}>ACTUAL AMOUNT</Text>
+          <Text style={styles.amountValue}>${(parsePriceInput(price) * Math.max(1, Math.floor(Number(quantity) || 1))).toFixed(2)}</Text>
+        </View>}
+
+        {loaded && <View style={styles.listTotalBar}>
+          <Text style={styles.listTotalLabel}>SHOPPING LIST TOTAL</Text>
+          <Text style={styles.listTotalValue}>${session.items.reduce((total,item)=>
+            total + (item.id === itemId ? parsePriceInput(price) * Math.max(1,Math.floor(Number(quantity) || 1)) : (Number(item.price) || 0) * Math.max(1,Number(item.quantity) || 1)),0).toFixed(2)}</Text>
+        </View>}
 
 
 
@@ -932,6 +941,26 @@ const styles = StyleSheet.create({
 
   },
 
+
+  amountBar:{
+    marginTop:14,
+    paddingHorizontal:16,
+    paddingVertical:12,
+    borderRadius:16,
+    backgroundColor:"#E8F5E9",
+    borderWidth:1,
+    borderColor:"#B7DDBA",
+    flexDirection:"row",
+    alignItems:"center",
+    justifyContent:"space-between"
+  },
+
+  amountLabel:{color:"#2E7D32",fontSize:12,fontWeight:"900",letterSpacing:0.7},
+  amountValue:{color:"#1B5E20",fontSize:24,fontWeight:"900"},
+
+  listTotalBar:{marginTop:8,paddingHorizontal:16,paddingVertical:10,borderRadius:16,backgroundColor:"#F3F7F1",borderWidth:1,borderColor:"#D8E6DA",flexDirection:"row",alignItems:"center",justifyContent:"space-between"},
+  listTotalLabel:{color:"#536650",fontSize:11,fontWeight:"900",letterSpacing:0.6},
+  listTotalValue:{color:"#3E4B3C",fontSize:20,fontWeight:"900"},
 
   priceBox:{
 

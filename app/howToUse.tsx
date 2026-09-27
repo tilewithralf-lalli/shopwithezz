@@ -62,12 +62,12 @@ const GUIDE_SECTIONS = [
   {
     title:"SETTINGS, BACKUP AND RESTORE",
     icon:"cloud-outline" as const,
-    text:"Settings contains your trial status and reminders, feedback, backup, restore, purchase and extra help. Use Backup regularly and save the file somewhere you can find again. Restore replaces your current ShopWithEzz data with the chosen backup, so make a fresh backup first if you are unsure."
+    text:"Settings contains your access status and reminders, feedback, backup, restore, purchase and extra help. Use Backup regularly and save the file somewhere you can find again. Restore replaces your current ShopWithEzz data with the chosen backup, so make a fresh backup first if you are unsure."
   },
   {
-    title:"TRIAL, UNLOCK AND HELP",
+    title:"ACCESS, PURCHASE AND HELP",
     icon:"shield-checkmark-outline" as const,
-    text:"Your 31-day trial lets you try ShopWithEzz before unlocking it with one payment. Trial reminders can be turned on or off in Settings. The planned A$35 one-time unlock is less than 10 cents a day over a year, with no subscription. If something does not work, use Send Feedback in Settings and describe what happened."
+    text:"ShopWithEzz is a yearly purchase. When you install ShopWithEzz, all features are available for 31 days. After that, you can purchase one year of full access in Settings for A$35, which works out to about 10 cents per day. A yearly purchase includes app updates during that paid year. You may cancel at any time, and your access continues until the end of the paid year. When that year ends, you can purchase another year whenever you choose. If something does not work, use Send Feedback in Settings and describe what happened."
   }
 ] as const;
 

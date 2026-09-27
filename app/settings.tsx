@@ -297,7 +297,7 @@ export default function SettingsScreen(){
           </View>
         </View>
 
-        <Text style={styles.sectionLabel}>{isFamilyEdition ? "FAMILY VERSION" : "UPGRADE ANY TIME"}</Text>
+          <Text style={styles.sectionLabel}>{isFamilyEdition ? "FAMILY VERSION" : "YEARLY ACCESS"}</Text>
         <View style={styles.card}>
           <Row
             icon={isFamilyEdition || isUnlocked ? "checkmark-circle-outline" : "sparkles-outline"}
@@ -319,7 +319,7 @@ export default function SettingsScreen(){
         </View>
 
         {!isFamilyEdition && <>
-          <Text style={styles.sectionLabel}>TRIAL & REMINDERS</Text>
+          <Text style={styles.sectionLabel}>ACCESS & REMINDERS</Text>
           <View style={styles.card}>
             <View style={styles.trialSettingsRow}>
               <View style={styles.rowIcon}>
@@ -328,15 +328,15 @@ export default function SettingsScreen(){
               <View style={styles.rowText}>
                 <Text style={styles.rowTitle}>
                   {trialStatus?.isExpired
-                    ? "Trial Finished"
-                    : "31-Day Trial"}
+                    ? "Access Period Finished"
+                    : "31-Day Access"}
                 </Text>
                 <Text style={styles.rowDetail}>
                   {trialStatus
                     ? trialStatus.isExpired
                       ? "Your shopping data is safe. Unlock any time."
                       : `${trialStatus.daysRemaining} day${trialStatus.daysRemaining === 1 ? "" : "s"} remaining`
-                    : "Checking your trial…"}
+                    : "Checking your access…"}
                 </Text>
               </View>
             </View>
@@ -346,7 +346,7 @@ export default function SettingsScreen(){
                 <Ionicons name="notifications-outline" size={22} color="#426047"/>
               </View>
               <View style={styles.rowText}>
-                <Text style={styles.rowTitle}>Trial Reminders</Text>
+                <Text style={styles.rowTitle}>Access Reminders</Text>
                 <Text style={styles.rowDetail}>Once a day during the final 7 days, when you open the app</Text>
               </View>
               <Switch
@@ -354,7 +354,7 @@ export default function SettingsScreen(){
                 onValueChange={setTrialReminders}
                 trackColor={{false:"#D8DFD7",true:"#86A47E"}}
                 thumbColor="#FFFFFF"
-                accessibilityLabel="Turn trial reminders on or off"
+                accessibilityLabel="Turn access reminders on or off"
               />
             </View>
           </View>

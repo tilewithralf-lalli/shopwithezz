@@ -2536,7 +2536,7 @@ const styles = StyleSheet.create({
   budgetBombOkText:{fontSize:14,fontWeight:"900",color:"#6C5A51"},
   budgetBombChangeButton:{flex:1.45,minHeight:48,borderRadius:14,backgroundColor:"#C94932",alignItems:"center",justifyContent:"center"},
   budgetBombChangeText:{fontSize:14,fontWeight:"900",color:"#FFFFFF"},
-  scrollContent:{paddingHorizontal:18,paddingTop:46},
+  scrollContent:{paddingHorizontal:18,paddingTop:103},
   header:{flexDirection:"row",alignItems:"center"},
   backButton:{width:46,height:46,borderRadius:15,backgroundColor:"#E6EEE2",alignItems:"center",justifyContent:"center"},
   backText:{marginTop:-4,fontSize:38,color:"#1B5E20"},
