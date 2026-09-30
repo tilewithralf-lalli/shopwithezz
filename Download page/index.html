@@ -131,6 +131,47 @@
       html { scroll-behavior: auto; }
       *, *::before, *::after { transition-duration: .01ms !important; }
     }
+  
+/* Friendly, more characterful visual refresh */
+body{background:radial-gradient(ellipse at 50% 10%,#e4efdf 0,transparent 42rem),#faf6ed;color:#303b32;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+header{position:relative;overflow:hidden;padding:64px 22px 76px;background:linear-gradient(120deg,#244a34,#4e7954 58%,#81996d)}
+header:before{content:"";display:block;width:94px;height:94px;margin:0 auto 18px;border-radius:28px;background:rgba(255,255,255,.15);box-shadow:inset 0 1px 1px #ffffff66,0 14px 28px #17352044}
+header:after{content:"🛒";position:absolute;left:50%;top:75px;transform:translateX(-50%);font-size:51px;line-height:1}
+header h1{position:relative;z-index:1;font-size:clamp(44px,8vw,70px);letter-spacing:-.055em;text-shadow:0 3px 18px #17352033}
+header p{position:relative;z-index:1;font-size:clamp(18px,3vw,23px);color:#f5f7f0}
+header b{position:relative;z-index:1;display:inline-block;padding:8px 15px;border:1px solid #ffffff55;border-radius:999px;background:#ffffff18;font-size:12px;letter-spacing:.1em}
+main{max-width:900px;margin:-28px auto 30px;position:relative}
+.card{position:relative;overflow:hidden;padding:clamp(24px,5vw,40px);margin:17px 0;border:1px solid #385c4014;border-radius:24px;box-shadow:0 12px 34px #23452d12;transition:transform .18s ease,box-shadow .18s ease}
+.card:hover{transform:translateY(-2px);box-shadow:0 17px 38px #23452d1c}
+.card:nth-child(1){border-top:5px solid #e8bd61;background:linear-gradient(130deg,#fff,#fffaf0)}
+.card:nth-child(2){background:linear-gradient(140deg,#fff 70%,#edf5e8)}
+.card:nth-child(3){background:linear-gradient(145deg,#edf4e8,#fbfcf8)}
+h2{font-size:clamp(22px,4vw,29px);letter-spacing:-.035em}
+.card h2:after{content:"";display:block;width:42px;height:4px;margin-top:10px;border-radius:4px;background:#d8b45c}
+.card:nth-child(3) ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0 0;padding:0;list-style:none}
+.card:nth-child(3) li{display:flex;align-items:center;gap:11px;min-height:58px;padding:11px 13px;border:1px solid #e2ebde;border-radius:15px;background:#ffffffd9}
+.card:nth-child(3) li:before{content:"✓";display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:50%;background:#dfedda;color:#315b40;font-weight:900}
+.card:nth-child(4){color:#fff;background:linear-gradient(135deg,#294d37,#507c53)}
+.card:nth-child(4) h2{color:#fff}
+.card:nth-child(4) h2:after{background:#edc76e}
+.card:nth-child(4) p{color:#f1f5ef}
+.price{position:relative;z-index:1;margin:22px 0;padding:22px;border:2px solid #edc76e;border-radius:20px;background:linear-gradient(140deg,#fff8e4,#ffedbd);box-shadow:0 10px 23px #142c1b24}
+.price h2{margin:0;color:#294d37;font-size:clamp(36px,7vw,52px)}
+.price h2:after{display:none}
+.price b{color:#72581e;font-size:18px}
+.card:nth-child(5){display:grid;grid-template-columns:48px 1fr;gap:15px;align-items:start}
+.card:nth-child(5):before{content:"✓";display:grid;place-items:center;width:46px;height:46px;border-radius:15px;background:#e6f0e2;color:#315b40;font-size:22px;font-weight:bold}
+.card:nth-child(5) h2{grid-column:2}
+.card:nth-child(5) p{grid-column:2}
+.card:nth-child(6){text-align:center;border:1px solid #f0dfb5;background:linear-gradient(135deg,#fff1d2,#fffaf0 58%,#e8f1e3)}
+.card:nth-child(6) h2:after{margin-left:auto;margin-right:auto}
+.button{width:min(100%,390px);margin:22px auto 0;padding:17px 24px;border-radius:15px;background:#315b40;box-shadow:0 7px 0 #d7b860,0 14px 24px #20412e2b;font-size:18px;transition:transform .18s ease,background .18s ease}
+.button:hover{background:#20412e;transform:translateY(-3px)}
+footer{padding:20px 18px 36px;color:#68756b}
+footer p:last-child{color:#315b40;font-weight:700}
+@media(max-width:600px){header{padding:52px 18px 65px}header:after{top:62px;font-size:44px}header:before{width:80px;height:80px}header h1{font-size:46px}main{width:calc(100% - 22px);margin-top:-22px}.card{border-radius:19px;margin:13px 0}.card:nth-child(3) ul{grid-template-columns:1fr;gap:8px}.card:nth-child(5){grid-template-columns:38px 1fr;gap:12px}.card:nth-child(5):before{width:38px;height:38px}}
+@media(prefers-reduced-motion:reduce){.card,.button{transition:none}}
+
   </style>
 </head>
 <body>
