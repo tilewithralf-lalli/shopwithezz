@@ -3,26 +3,146 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#38543f">
   <title>ShopWithEzz | Team Lalli61</title>
   <style>
-    body{font:17px Arial,sans-serif;line-height:1.6;background:#f4f1ea;color:#354134;margin:0}
-    header{background:#536650;color:white;text-align:center;padding:45px 20px}
-    main{max-width:850px;margin:25px auto;padding:0 16px}
-    .card{background:white;border-radius:18px;padding:28px;margin:18px 0}
-    h2{color:#536650}
-    .price{text-align:center;border:3px solid #d7a83c}
-    .button{display:block;text-align:center;background:#536650;color:white;padding:16px;border-radius:12px;text-decoration:none;font-weight:bold}
-    footer{text-align:center;padding:30px;color:#536650}
+    :root {
+      color-scheme: light;
+      --forest: #38543f;
+      --forest-deep: #253d2c;
+      --sage: #e6eee4;
+      --cream: #f7f6f0;
+      --ink: #303b32;
+      --muted: #657168;
+      --gold: #d7ad55;
+      --white: #fff;
+      --shadow: 0 12px 34px rgba(37, 61, 44, .075);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(218, 230, 214, .72), transparent 38rem),
+        var(--cream);
+      color: var(--ink);
+      font: 17px/1.72 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    header {
+      position: relative;
+      overflow: hidden;
+      padding: 68px 22px 62px;
+      background: linear-gradient(135deg, #304b37, #587257);
+      color: var(--white);
+      text-align: center;
+    }
+    header::before, header::after {
+      position: absolute;
+      content: "";
+      width: 250px;
+      height: 250px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    header::before { top: -150px; left: -75px; }
+    header::after { right: -105px; bottom: -185px; width: 320px; height: 320px; }
+    .hero-content { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
+    h1 {
+      margin: 0;
+      font-size: clamp(2.45rem, 8vw, 4.25rem);
+      line-height: 1.08;
+      letter-spacing: -.045em;
+      font-weight: 760;
+    }
+    .tagline { margin: 15px 0 22px; color: rgba(255,255,255,.9); font-size: clamp(1.06rem, 3vw, 1.35rem); }
+    .trust-note {
+      display: inline-block;
+      padding: 8px 14px;
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 999px;
+      background: rgba(255,255,255,.09);
+      font-size: .76rem;
+      font-weight: 750;
+      letter-spacing: .12em;
+    }
+    main { width: min(820px, 100% - 32px); margin: 30px auto 48px; }
+    .card {
+      margin: 18px 0;
+      padding: clamp(23px, 5vw, 38px);
+      border: 1px solid rgba(56,84,63,.08);
+      border-radius: 22px;
+      background: rgba(255,255,255,.96);
+      box-shadow: var(--shadow);
+    }
+    h2 { margin: 0 0 14px; color: var(--forest); font-size: clamp(1.35rem, 4vw, 1.7rem); line-height: 1.25; letter-spacing: -.02em; }
+    p { margin: 0 0 14px; }
+    p:last-child { margin-bottom: 0; }
+    .welcome-card { border-top: 4px solid var(--gold); }
+    .welcome-card p:first-of-type { font-size: 1.12rem; }
+    ul { margin: 12px 0 0; padding-left: 1.35em; }
+    li { padding: 3px 0 3px 4px; }
+    li::marker { color: #779078; }
+    .price-card { border-color: rgba(215,173,85,.48); background: linear-gradient(145deg,#fffefa,#fff); }
+    .price {
+      margin: 22px 0;
+      padding: 20px;
+      border: 2px solid var(--gold);
+      border-radius: 18px;
+      background: #fffaf0;
+      text-align: center;
+    }
+    .price h2 { margin: 0 0 3px; color: var(--forest-deep); font-size: clamp(2rem, 7vw, 2.65rem); }
+    .price b { color: #72581e; }
+    .no-renew { color: var(--forest); }
+    .download-card {
+      background: linear-gradient(145deg, #eef4ec, #fff);
+      text-align: center;
+    }
+    .download-card h2 { margin-bottom: 10px; }
+    .button {
+      display: block;
+      width: min(100%, 420px);
+      margin: 22px auto 0;
+      padding: 16px 20px;
+      border: 0;
+      border-radius: 14px;
+      background: var(--forest);
+      box-shadow: 0 7px 16px rgba(37,61,44,.18);
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 750;
+      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+    .button:hover { background: var(--forest-deep); transform: translateY(-2px); box-shadow: 0 10px 22px rgba(37,61,44,.22); }
+    .button:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
+    footer { padding: 28px 18px 36px; color: var(--muted); text-align: center; font-size: .92rem; }
+    footer p { margin: 4px 0; }
+    footer p:last-child { color: var(--forest); font-weight: 650; }
+    @media (max-width: 520px) {
+      body { font-size: 16px; }
+      header { padding: 55px 20px 48px; }
+      main { width: calc(100% - 24px); margin-top: 16px; }
+      .card { margin: 13px 0; border-radius: 18px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: .01ms !important; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>ShopWithEzz</h1>
-    <p>Shop beautifully. Spend smarter. Get Stuff Done.</p>
-    <b>WE BELIEVE TRUST COMES BEFORE DOWNLOADS</b>
+    <div class="hero-content">
+      <h1>ShopWithEzz</h1>
+      <p class="tagline">Shop beautifully. Spend smarter. Get Stuff Done.</p>
+      <span class="trust-note">WE BELIEVE TRUST COMES BEFORE DOWNLOADS</span>
+    </div>
   </header>
   <main>
-    <section class="card">
+    <section class="card welcome-card">
       <h2>Welcome</h2>
       <p><b>Thank you for your interest in ShopWithEzz.</b></p>
       <p>Before downloading, please read what you are installing, why it was created, what it costs and what you can expect.</p>
@@ -43,7 +163,7 @@
         <li>Use help and walkthrough information</li>
       </ul>
     </section>
-    <section class="card">
+    <section class="card price-card">
       <h2>One Simple Yearly Purchase</h2>
       <p>ShopWithEzz is a yearly purchase. All features are available for 31 days after installation.</p>
       <p>The one-year full-access purchase can be made at any time during those 31 days in Settings for:</p>
@@ -52,14 +172,14 @@
         <b>About 10 cents per day.</b>
       </div>
       <p>The purchase includes app updates during that paid year. Access continues until the paid year ends, and another year can be purchased whenever needed.</p>
-      <p><b>There is no automatic renewal.</b></p>
+      <p class="no-renew"><b>There is no automatic renewal.</b></p>
     </section>
     <section class="card">
       <h2>Platform Availability</h2>
       <p>Current release: Android.</p>
       <p>The iPhone and iPad version will be developed after it has been fully tested.</p>
     </section>
-    <section class="card">
+    <section class="card download-card">
       <h2>Ready to Download?</h2>
       <p>Continue to the separate download page to install ShopWithEzz from Google Play.</p>
       <a class="button" href="download.html">Continue to the Download Page</a>
