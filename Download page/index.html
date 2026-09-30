@@ -8,181 +8,226 @@
   <style>
     :root {
       color-scheme: light;
-      --forest: #38543f;
-      --forest-deep: #253d2c;
-      --sage: #e6eee4;
-      --cream: #f7f6f0;
+      --forest: #315b40;
+      --forest-dark: #244a34;
+      --cream: #faf6ed;
       --ink: #303b32;
-      --muted: #657168;
-      --gold: #d7ad55;
-      --white: #fff;
-      --shadow: 0 12px 34px rgba(37, 61, 44, .075);
+      --muted: #68756b;
+      --gold: #d8b45c;
+      --sage: #e6f0e2;
+      --shadow: 0 12px 34px rgba(35, 69, 45, .10);
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      background:
-        radial-gradient(ellipse at 50% 0%, rgba(218, 230, 214, .72), transparent 38rem),
-        var(--cream);
       color: var(--ink);
+      background: radial-gradient(ellipse at 50% 10%, #e4efdf 0, transparent 42rem), var(--cream);
       font: 17px/1.72 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
-    header {
+    .hero {
       position: relative;
       overflow: hidden;
-      padding: 68px 22px 62px;
-      background: linear-gradient(135deg, #304b37, #587257);
-      color: var(--white);
+      padding: 64px 22px 76px;
+      color: #fff;
       text-align: center;
+      background: linear-gradient(120deg, #244a34, #4e7954 58%, #81996d);
     }
-    header::before, header::after {
-      position: absolute;
+    .hero::before {
+      content: "🛒";
+      display: grid;
+      place-items: center;
+      width: 94px;
+      height: 94px;
+      margin: 0 auto 18px;
+      border-radius: 28px;
+      background: rgba(255,255,255,.15);
+      box-shadow: inset 0 1px 1px #ffffff66, 0 14px 28px #17352044;
+      font-size: 52px;
+      line-height: 1;
+    }
+    .hero::after {
       content: "";
-      width: 250px;
-      height: 250px;
-      border: 1px solid rgba(255,255,255,.12);
+      position: absolute;
+      right: -95px;
+      bottom: -190px;
+      width: 300px;
+      height: 300px;
+      border: 1px solid rgba(255,255,255,.16);
       border-radius: 50%;
+      box-shadow: 0 0 0 24px rgba(255,255,255,.035), 0 0 0 50px rgba(255,255,255,.025);
       pointer-events: none;
     }
-    header::before { top: -150px; left: -75px; }
-    header::after { right: -105px; bottom: -185px; width: 320px; height: 320px; }
     .hero-content { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
     h1 {
       margin: 0;
-      font-size: clamp(2.45rem, 8vw, 4.25rem);
+      font-size: clamp(44px, 8vw, 70px);
       line-height: 1.08;
-      letter-spacing: -.045em;
-      font-weight: 760;
+      letter-spacing: -.055em;
+      text-shadow: 0 3px 18px #17352033;
     }
-    .tagline { margin: 15px 0 22px; color: rgba(255,255,255,.9); font-size: clamp(1.06rem, 3vw, 1.35rem); }
+    .tagline { margin: 15px 0 22px; color: #f5f7f0; font-size: clamp(18px, 3vw, 23px); }
     .trust-note {
       display: inline-block;
-      padding: 8px 14px;
-      border: 1px solid rgba(255,255,255,.28);
+      padding: 8px 15px;
+      border: 1px solid #ffffff55;
       border-radius: 999px;
-      background: rgba(255,255,255,.09);
-      font-size: .76rem;
+      background: #ffffff18;
+      font-size: 12px;
       font-weight: 750;
-      letter-spacing: .12em;
+      letter-spacing: .1em;
     }
-    main { width: min(820px, 100% - 32px); margin: 30px auto 48px; }
+    main {
+      position: relative;
+      width: min(900px, calc(100% - 32px));
+      margin: -28px auto 0;
+    }
     .card {
-      margin: 18px 0;
-      padding: clamp(23px, 5vw, 38px);
-      border: 1px solid rgba(56,84,63,.08);
-      border-radius: 22px;
-      background: rgba(255,255,255,.96);
+      position: relative;
+      margin: 17px 0;
+      padding: clamp(24px, 5vw, 40px);
+      overflow: hidden;
+      border: 1px solid #385c4014;
+      border-radius: 24px;
+      background: #fff;
       box-shadow: var(--shadow);
     }
-    h2 { margin: 0 0 14px; color: var(--forest); font-size: clamp(1.35rem, 4vw, 1.7rem); line-height: 1.25; letter-spacing: -.02em; }
+    .welcome-card { border-top: 5px solid #e8bd61; background: linear-gradient(130deg, #fff, #fffaf0); }
+    .about-card { background: linear-gradient(140deg, #fff 70%, #edf5e8); }
+    .features-card { background: linear-gradient(145deg, #edf4e8, #fbfcf8); }
+    .price-card { color: #fff; background: linear-gradient(135deg, #294d37, #507c53); }
+    .availability-card { display: grid; grid-template-columns: 48px 1fr; gap: 15px; align-items: start; }
+    .availability-card::before {
+      content: "✓";
+      display: grid;
+      place-items: center;
+      grid-row: 1 / span 3;
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      background: var(--sage);
+      color: var(--forest);
+      font-size: 22px;
+      font-weight: 900;
+    }
+    .download-card {
+      margin-bottom: 0;
+      border-color: #f0dfb5;
+      background: linear-gradient(135deg, #fff1d2, #fffaf0 58%, #e8f1e3);
+      text-align: center;
+    }
+    h2 {
+      margin: 0 0 14px;
+      color: var(--forest);
+      font-size: clamp(22px, 4vw, 29px);
+      line-height: 1.25;
+      letter-spacing: -.035em;
+    }
+    .card h2::after {
+      content: "";
+      display: block;
+      width: 42px;
+      height: 4px;
+      margin-top: 10px;
+      border-radius: 4px;
+      background: var(--gold);
+    }
+    .price-card h2 { color: #fff; }
+    .price-card p { color: #f1f5ef; }
+    .availability-card h2, .availability-card p { grid-column: 2; }
+    .availability-card::before { grid-column: 1; }
     p { margin: 0 0 14px; }
     p:last-child { margin-bottom: 0; }
-    .welcome-card { border-top: 4px solid var(--gold); }
     .welcome-card p:first-of-type { font-size: 1.12rem; }
-    ul { margin: 12px 0 0; padding-left: 1.35em; }
-    li { padding: 3px 0 3px 4px; }
-    li::marker { color: #779078; }
-    .price-card { border-color: rgba(215,173,85,.48); background: linear-gradient(145deg,#fffefa,#fff); }
+    .features-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .features-list li {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-height: 58px;
+      padding: 11px 13px;
+      border: 1px solid #e2ebde;
+      border-radius: 15px;
+      background: rgba(255,255,255,.85);
+    }
+    .features-list li::before {
+      content: "✓";
+      display: grid;
+      place-items: center;
+      flex: 0 0 27px;
+      width: 27px;
+      height: 27px;
+      border-radius: 50%;
+      background: #dfedda;
+      color: var(--forest);
+      font-weight: 900;
+    }
     .price {
       margin: 22px 0;
-      padding: 20px;
-      border: 2px solid var(--gold);
-      border-radius: 18px;
-      background: #fffaf0;
+      padding: 22px;
+      border: 2px solid #edc76e;
+      border-radius: 20px;
+      background: linear-gradient(140deg, #fff8e4, #ffedbd);
+      box-shadow: 0 10px 23px #142c1b24;
       text-align: center;
     }
-    .price h2 { margin: 0 0 3px; color: var(--forest-deep); font-size: clamp(2rem, 7vw, 2.65rem); }
-    .price b { color: #72581e; }
-    .no-renew { color: var(--forest); }
-    .download-card {
-      background: linear-gradient(145deg, #eef4ec, #fff);
-      text-align: center;
+    .price h2 {
+      margin: 0;
+      color: #333;
+      font-size: clamp(36px, 7vw, 52px);
     }
-    .download-card h2 { margin-bottom: 10px; }
+    .price h2::after { display: none; }
+    .price b { color: #624b1d; font-size: 18px; }
+    .no-renew { color: #f1f5ef; }
     .button {
       display: block;
-      width: min(100%, 420px);
+      width: min(100%, 390px);
       margin: 22px auto 0;
-      padding: 16px 20px;
-      border: 0;
-      border-radius: 14px;
+      padding: 17px 24px;
+      border-radius: 15px;
       background: var(--forest);
-      box-shadow: 0 7px 16px rgba(37,61,44,.18);
-      color: white;
+      box-shadow: 0 7px 0 #d7b860, 0 14px 24px #20412e2b;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 750;
       text-align: center;
       text-decoration: none;
-      font-weight: 750;
-      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
     }
-    .button:hover { background: var(--forest-deep); transform: translateY(-2px); box-shadow: 0 10px 22px rgba(37,61,44,.22); }
+    .button:hover { background: var(--forest-dark); }
     .button:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
-    footer { padding: 8px 18px 20px; margin-top: 10mm; transform: none; color: var(--muted); text-align: center; font-size: .92rem; }
+    footer {
+      margin: 0;
+      padding: 12px 18px 32px;
+      color: var(--muted);
+      font-size: .92rem;
+      text-align: center;
+    }
     footer p { margin: 4px 0; }
-    footer p:last-child { color: var(--forest); font-weight: 650; }
-    @media (max-width: 520px) {
+    footer p:last-child { color: var(--forest); font-weight: 700; }
+    @media (max-width: 600px) {
       body { font-size: 16px; }
-      header { padding: 55px 20px 48px; }
-      main { width: calc(100% - 24px); margin-top: 16px; }
-      .card { margin: 13px 0; border-radius: 18px; }
+      .hero { padding: 52px 18px 65px; }
+      .hero::before { width: 80px; height: 80px; margin-bottom: 15px; font-size: 44px; }
+      h1 { font-size: 46px; }
+      main { width: calc(100% - 22px); }
+      .card { margin: 13px 0; border-radius: 19px; }
+      .features-list { grid-template-columns: 1fr; gap: 8px; }
+      .availability-card { grid-template-columns: 38px 1fr; gap: 12px; }
+      .availability-card::before { width: 38px; height: 38px; }
     }
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      *, *::before, *::after { transition-duration: .01ms !important; }
-    }
-  
-/* Friendly, more characterful visual refresh */
-body{background:radial-gradient(ellipse at 50% 10%,#e4efdf 0,transparent 42rem),#faf6ed;color:#303b32;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
-header{position:relative;overflow:hidden;padding:64px 22px 76px;background:linear-gradient(120deg,#244a34,#4e7954 58%,#81996d)}
-header:before{content:"";display:block;width:94px;height:94px;margin:0 auto 18px;border-radius:28px;background:rgba(255,255,255,.15);box-shadow:inset 0 1px 1px #ffffff66,0 14px 28px #17352044}
-header:after{content:"🛒";position:absolute;left:50%;top:75px;transform:translateX(-50%);font-size:51px;line-height:1}
-header h1{position:relative;z-index:1;font-size:clamp(44px,8vw,70px);letter-spacing:-.055em;text-shadow:0 3px 18px #17352033}
-header p{position:relative;z-index:1;font-size:clamp(18px,3vw,23px);color:#f5f7f0}
-header b{position:relative;z-index:1;display:inline-block;padding:8px 15px;border:1px solid #ffffff55;border-radius:999px;background:#ffffff18;font-size:12px;letter-spacing:.1em}
-main{max-width:900px;margin:-28px auto 30px;position:relative}
-.card{position:relative;overflow:hidden;padding:clamp(24px,5vw,40px);margin:17px 0;border:1px solid #385c4014;border-radius:24px;box-shadow:0 12px 34px #23452d12;transition:transform .18s ease,box-shadow .18s ease}
-.card:hover{transform:translateY(-2px);box-shadow:0 17px 38px #23452d1c}
-.card:nth-child(1){border-top:5px solid #e8bd61;background:linear-gradient(130deg,#fff,#fffaf0)}
-.card:nth-child(2){background:linear-gradient(140deg,#fff 70%,#edf5e8)}
-.card:nth-child(3){background:linear-gradient(145deg,#edf4e8,#fbfcf8)}
-h2{font-size:clamp(22px,4vw,29px);letter-spacing:-.035em}
-.card h2:after{content:"";display:block;width:42px;height:4px;margin-top:10px;border-radius:4px;background:#d8b45c}
-.card:nth-child(3) ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0 0;padding:0;list-style:none}
-.card:nth-child(3) li{display:flex;align-items:center;gap:11px;min-height:58px;padding:11px 13px;border:1px solid #e2ebde;border-radius:15px;background:#ffffffd9}
-.card:nth-child(3) li:before{content:"✓";display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:50%;background:#dfedda;color:#315b40;font-weight:900}
-.card:nth-child(4){color:#fff;background:linear-gradient(135deg,#294d37,#507c53)}
-.card:nth-child(4) h2{color:#fff}
-.card:nth-child(4) h2:after{background:#edc76e}
-.card:nth-child(4) p{color:#f1f5ef}
-.price{position:relative;z-index:1;margin:22px 0;padding:22px;border:2px solid #edc76e;border-radius:20px;background:linear-gradient(140deg,#fff8e4,#ffedbd);box-shadow:0 10px 23px #142c1b24}
-.price h2{margin:0;color:#294d37;font-size:clamp(36px,7vw,52px)}
-.price h2:after{display:none}
-.price b{color:#72581e;font-size:18px}
-.card:nth-child(5){display:grid;grid-template-columns:48px 1fr;gap:15px;align-items:start}
-.card:nth-child(5):before{content:"✓";display:grid;place-items:center;width:46px;height:46px;border-radius:15px;background:#e6f0e2;color:#315b40;font-size:22px;font-weight:bold}
-.card:nth-child(5) h2{grid-column:2}
-.card:nth-child(5) p{grid-column:2}
-.card:nth-child(6){text-align:center;border:1px solid #f0dfb5;background:linear-gradient(135deg,#fff1d2,#fffaf0 58%,#e8f1e3)}
-.card:nth-child(6) h2:after{margin-left:auto;margin-right:auto}
-.button{width:min(100%,390px);margin:22px auto 0;padding:17px 24px;border-radius:15px;background:#315b40;box-shadow:0 7px 0 #d7b860,0 14px 24px #20412e2b;font-size:18px;transition:transform .18s ease,background .18s ease}
-.button:hover{background:#20412e;transform:translateY(-3px)}
-footer{padding:20px 18px 36px;color:#68756b}
-footer p:last-child{color:#315b40;font-weight:700}
-@media(max-width:600px){header{padding:52px 18px 65px}header:after{top:62px;font-size:44px}header:before{width:80px;height:80px}header h1{font-size:46px}main{width:calc(100% - 22px);margin-top:-22px}.card{border-radius:19px;margin:13px 0}.card:nth-child(3) ul{grid-template-columns:1fr;gap:8px}.card:nth-child(5){grid-template-columns:38px 1fr;gap:12px}.card:nth-child(5):before{width:38px;height:38px}}
-@media(prefers-reduced-motion:reduce){.card,.button{transition:none}}
-
-  
-header:before{content:"🛒";display:grid;place-items:center;width:94px;height:94px;margin:0 auto 18px;border-radius:28px;background:rgba(255,255,255,.15);box-shadow:inset 0 1px 1px #ffffff66,0 14px 28px #17352044;font-size:52px;line-height:1}
-header:after{content:"";position:absolute;right:-95px;bottom:-190px;width:300px;height:300px;border:1px solid rgba(255,255,255,.16);border-radius:50%;box-shadow:0 0 0 24px rgba(255,255,255,.035),0 0 0 50px rgba(255,255,255,.025);pointer-events:none}
-@media(max-width:600px){header:before{width:80px;height:80px;margin-bottom:15px;font-size:44px}}
-
-.price h2{color:#333333!important}
-.price b{color:#624b1d!important}
-</style>
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
 </head>
 <body>
-  <header>
+  <header class="hero">
     <div class="hero-content">
       <h1>ShopWithEzz</h1>
       <p class="tagline">Shop beautifully. Spend smarter. Get Stuff Done.</p>
@@ -195,19 +240,18 @@ header:after{content:"";position:absolute;right:-95px;bottom:-190px;width:300px;
       <p><b>Thank you for your interest in ShopWithEzz.</b></p>
       <p>Before downloading, please read what you are installing, why it was created, what it costs and what you can expect.</p>
     </section>
-    <section class="card">
+    <section class="card about-card">
       <h2>About ShopWithEzz</h2>
       <p>ShopWithEzz helps you create shopping lists, add items by typing, voice, barcode scanning or photos, track prices and watch your spending while you shop.</p>
       <p>It is designed to make shopping less stressful and help you stay closer to your budget.</p>
     </section>
-    <section class="card">
+    <section class="card features-card">
       <h2>What You Can Do</h2>
-      <ul>
+      <ul class="features-list">
         <li>Create and manage shopping lists</li>
         <li>Add items by voice, barcode or photo</li>
         <li>Track quantities, prices and totals</li>
         <li>Set budgets and receive budget alerts</li>
-        
         <li>Use help and walkthrough information</li>
       </ul>
     </section>
@@ -222,7 +266,7 @@ header:after{content:"";position:absolute;right:-95px;bottom:-190px;width:300px;
       <p>The purchase includes app updates during that paid year. Access continues until the paid year ends, and another year can be purchased whenever needed.</p>
       <p class="no-renew"><b>There is no automatic renewal.</b></p>
     </section>
-    <section class="card">
+    <section class="card availability-card">
       <h2>Platform Availability</h2>
       <p>Current release: Android.</p>
       <p>The iPhone and iPad version will be developed after it has been fully tested.</p>
