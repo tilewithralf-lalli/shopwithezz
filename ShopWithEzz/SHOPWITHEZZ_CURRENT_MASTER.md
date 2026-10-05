@@ -67,7 +67,7 @@ list totals, spending and budget alerts, pantry, recipes and help.
 
 ShopWithEzz is a yearly purchase. All features are available for 31 days after
 installation. After that, one year of full access can be purchased in Settings
-for A$34.99, about 10 cents per day. The purchase includes app updates during
+for A$35, about 10 cents per day. The purchase includes app updates during
 that paid year. Access continues until the paid year ends, and another year
 can be purchased whenever needed. There is no automatic renewal.
 
