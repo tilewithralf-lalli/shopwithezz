@@ -14,7 +14,7 @@ export function PurchaseProvider({children}:PropsWithChildren){
   const [isUnlocked,setIsUnlocked] = useState(isFamilyEdition);
   const [isLoading,setIsLoading] = useState(true);
   const [isPurchasing,setIsPurchasing] = useState(false);
-  const [productPrice,setProductPrice] = useState("A$35.00");
+  const [productPrice,setProductPrice] = useState("A$34.99");
 
   async function grantUnlock(purchase:{productId:string;transactionId?:string | null;purchaseToken?:string | null}){
     if(purchase.productId !== FULL_UNLOCK_PRODUCT_ID){return;}

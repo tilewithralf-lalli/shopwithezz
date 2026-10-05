@@ -31,7 +31,7 @@
 
 - [x] Open the existing ShopWithEzz app in Play Console.
 - [x] Confirm the next unused version code: **13**.
-- [ ] Confirm the final yearly A$35 wording in the store listing.
+- [ ] Confirm the final yearly A$34.99 wording in the store listing.
 - [x] Confirm the upload-key certificate for the uploaded AAB.
 - [x] Build the new AAB from the tested `C:\SWE2` project.
 - [x] Verify the AAB package, version name, version code and signing certificate.
