@@ -2,21 +2,25 @@
 
 **Check the actual Google Play release history first. Record the highest uploaded version code, set the next unused code in the project files, verify package ID, release keystore, Kotlin/Gradle/dependencies, product ID and TypeScript, and only then give or run the build command. Never guess.**
 
+## PUBLIC PAGE RULE — ALL TEAM LALLI61 APPS
+
+For every app, there must be one clearly identified live public information/download page. Find and verify the page actually connected from Google Play before editing anything. Pull the exact live page source into the matching project folder, preserve its complete content and working links, and use the app's own name, package, price, version and Google Play URL. Do not substitute an old Drive HTML copy, a raw GitHub file, a stale local page, or a tester-only page. Keep functional deep-link pages and internal checklists separate. Show the complete local page for review before any GitHub or Drive upload.
+
 # SHOPWITHEZZ — ONE MASTER HANDOVER
 
 ## CURRENT STATUS UPDATE — 5 OCTOBER 2026
 
-- Google Play production access has been granted.
-- ShopWithEzz is publicly available on Google Play and the public listing opens correctly.
+- Google Play version code **15 (version 1.1.1)** is the current release in review.
+- Do not describe Code 15 as publicly available until Play Console confirms publication.
 - The corrected Google Play full description has been submitted to Google for review.
 - The description now directs users to the complete public information/download page before installing:
   https://tilewithralf-lalli.github.io/shopwithezz/
 - The public information page remains live and contains the full approved wording and footer.
 - The current Play Store “What’s new” text is older release-note wording. Changing that text requires a future app release; it is separate from the current store-description review.
-- Current state: **WAITING FOR GOOGLE REVIEW** of the store-description change.
+- Current state: **WAITING FOR GOOGLE REVIEW** of the release/listing changes.
 
 
-> **CURRENT AUTHORITATIVE UPDATE — 11 September 2026**
+> **CURRENT AUTHORITATIVE UPDATE — 5 October 2026**
 >
 > Read this section first. It is the corrected record after the complete file was reviewed. The older copied handovers below are retained as history so we do not lose the mistakes or decisions, but they are **not current instructions** when they conflict with this section.
 
@@ -24,10 +28,10 @@
 
 - App: **ShopWithEzz**
 - Package: `com.lalli61.shopwithezz`
-- Track: **Closed testing — Alpha**
-- Current published release: **ShopWithEzz 1.1.0, version code 12**
-- Current state: **Published**; the app can be installed from Google Play by eligible testers.
-- Do not use old instructions that say Code 10 or Code 11 is still the next upload. Always check the number shown in Play Console before a future build.
+- Current release checked in Play Console: **ShopWithEzz 1.1.1, version code 15**
+- Current state: **In review**; do not claim public availability until Play Console confirms it.
+- Code 10, 11, 12 and 13 references below are historical records only. They are not current build or upload instructions.
+- Always check the number shown in Play Console before any future build.
 - Public information page: https://tilewithralf-lalli.github.io/shopwithezz/
 - Closed-test opt-in page: https://play.google.com/apps/testing/com.lalli61.shopwithezz
 - Google Play app page: https://play.google.com/store/apps/details?id=com.lalli61.shopwithezz
@@ -69,7 +73,7 @@ Main use:
 
 Access and price wording recorded for the app:
 
-> When you install ShopWithEzz, all features are available for 31 days. If you wish to upgrade now, purchase it in Settings for A$35. If not, use the app for 31 days and decide later. Once purchased, the app is yours to use for as long as you wish.
+> When you install ShopWithEzz, all features are available for 31 days. If you wish to upgrade now, purchase it in Settings for A$34.99. If not, use the app for 31 days and decide later. Once purchased, the app is yours to use for as long as you wish.
 
 The exact live store listing must still be checked in Play Console before treating that wording as published.
 
@@ -271,7 +275,7 @@ The saved handoff says the store description should avoid the words **trial**, *
 >
 > Create shopping lists, add items quickly, track prices and budgets, scan product barcodes, import item photos, and keep useful pantry and recipe information together.
 >
-> When you install ShopWithEzz, all features are available for 31 days. If you wish to upgrade now, purchase it in Settings for A$35. If not, use the app for 31 days and decide later. Once purchased, the app is yours to use for as long as you wish.
+> When you install ShopWithEzz, all features are available for 31 days. If you wish to upgrade now, purchase it in Settings for A$34.99. If not, use the app for 31 days and decide later. Once purchased, the app is yours to use for as long as you wish.
 
 The handoff says the submission containing this description had previously been cancelled, so the live listing must be verified before treating this wording as published.
 
@@ -573,7 +577,7 @@ ShopWithEzz helps you plan and manage your shopping in one simple app.
 
 Create shopping lists, add items quickly, track prices and budgets, scan product barcodes, import item photos, and keep useful pantry and recipe information together.
 
-When you install ShopWithEzz, all features are available for 31 days. If you wish to upgrade now, purchase it in Settings for A$35. If not, use the app for 31 days and decide later. Once purchased, the app is yours to use for as long as you wish.
+When you install ShopWithEzz, all features are available for 31 days. If you wish to upgrade now, purchase it in Settings for A$34.99. If not, use the app for 31 days and decide later. Once purchased, the app is yours to use for as long as you wish.
 ```
 
 The description change containing this text was previously cancelled in Submission 2, so verify the live listing before assuming this text is published.
@@ -737,7 +741,7 @@ Answers must be based on real testing evidence. Do not submit vague answers such
 
 ### Reviewer access for ShopWithEzz
 
-ShopWithEzz provides all features for 31 days and later offers a A$35 one-time purchase. Google's reviewer must receive full and free access to every function needed for review. Supply valid instructions and any required review access in Play Console. Never require the reviewer to buy the app or rely on access expiring before review is completed.
+ShopWithEzz provides all features for 31 days and later offers a A$34.99 one-time purchase. Google's reviewer must receive full and free access to every function needed for review. Supply valid instructions and any required review access in Play Console. Never require the reviewer to buy the app or rely on access expiring before review is completed.
 
 ### Checklist before treating the 14-day test as started
 
@@ -1101,7 +1105,7 @@ Do not wait for the paid Apple Developer account before starting iOS work. The f
 
 ## Required wording
 
-Avoid the word **trial**. Use the saved 31-day unlocked wording and show the one-time purchase price as **A$35**.
+Avoid the word **trial**. Use the saved 31-day unlocked wording and show the one-time purchase price as **A$34.99**.
 
 ## Do not claim yet
 
@@ -1137,3 +1141,4 @@ The existing **How to Use** guide already provides help, but the first-install w
 
 
 
+**File updated: 5 October 2026**
