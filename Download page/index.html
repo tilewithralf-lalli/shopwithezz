@@ -3,284 +3,132 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#38543f">
   <title>ShopWithEzz | Team Lalli61</title>
   <style>
-    :root {
-      color-scheme: light;
-      --forest: #315b40;
-      --forest-dark: #244a34;
-      --cream: #faf6ed;
-      --ink: #303b32;
-      --muted: #68756b;
-      --gold: #d8b45c;
-      --sage: #e6f0e2;
-      --shadow: 0 12px 34px rgba(35, 69, 45, .10);
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      color: var(--ink);
-      background: radial-gradient(ellipse at 50% 10%, #e4efdf 0, transparent 42rem), var(--cream);
-      font: 17px/1.72 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-    .hero {
-      position: relative;
-      overflow: hidden;
-      padding: 64px 22px 76px;
-      color: #fff;
-      text-align: center;
-      background: linear-gradient(120deg, #244a34, #4e7954 58%, #81996d);
-    }
-    .hero::before {
-      content: "🛒";
-      display: grid;
-      place-items: center;
-      width: 94px;
-      height: 94px;
-      margin: 0 auto 18px;
-      border-radius: 28px;
-      background: rgba(255,255,255,.15);
-      box-shadow: inset 0 1px 1px #ffffff66, 0 14px 28px #17352044;
-      font-size: 52px;
-      line-height: 1;
-    }
-    .hero::after {
-      content: "";
-      position: absolute;
-      right: -95px;
-      bottom: -190px;
-      width: 300px;
-      height: 300px;
-      border: 1px solid rgba(255,255,255,.16);
-      border-radius: 50%;
-      box-shadow: 0 0 0 24px rgba(255,255,255,.035), 0 0 0 50px rgba(255,255,255,.025);
-      pointer-events: none;
-    }
-    .hero-content { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
-    h1 {
-      margin: 0;
-      font-size: clamp(44px, 8vw, 70px);
-      line-height: 1.08;
-      letter-spacing: -.055em;
-      text-shadow: 0 3px 18px #17352033;
-    }
-    .tagline { margin: 15px 0 22px; color: #f5f7f0; font-size: clamp(18px, 3vw, 23px); }
-    .trust-note {
-      display: inline-block;
-      padding: 8px 15px;
-      border: 1px solid #ffffff55;
-      border-radius: 999px;
-      background: #ffffff18;
-      font-size: 12px;
-      font-weight: 750;
-      letter-spacing: .1em;
-    }
-    main {
-      position: relative;
-      width: min(900px, calc(100% - 32px));
-      margin: 0 auto;
-    }
-    .card {
-      position: relative;
-      margin: 17px 0;
-      padding: clamp(14px, 2.5vw, 30px) clamp(20px, 4.5vw, 40px);
-      overflow: hidden;
-      border: 1px solid #385c4014;
-      border-radius: 24px;
-      background: #fff;
-      box-shadow: var(--shadow);
-    }
-    .welcome-card { border-top: 5px solid #e8bd61; background: linear-gradient(130deg, #fff, #fffaf0); }
-    .about-card { background: linear-gradient(140deg, #fff 70%, #edf5e8); }
-    .features-card { background: linear-gradient(145deg, #edf4e8, #fbfcf8); }
-    .price-card { color: #fff; background: linear-gradient(135deg, #294d37, #507c53); }
-    .availability-card { display: grid; grid-template-columns: 48px 1fr; gap: 15px; align-items: start; }
-    .availability-card::before {
-      content: "✓";
-      display: grid;
-      place-items: center;
-      grid-row: 1 / span 3;
-      width: 46px;
-      height: 46px;
-      border-radius: 15px;
-      background: var(--sage);
-      color: var(--forest);
-      font-size: 22px;
-      font-weight: 900;
-    }
-    .download-card {
-      margin-bottom: 0;
-      border-color: #f0dfb5;
-      background: linear-gradient(135deg, #fff1d2, #fffaf0 58%, #e8f1e3);
-      text-align: center;
-    }
-    h2 {
-      margin: 0 0 14px;
-      color: var(--forest);
-      font-size: clamp(22px, 4vw, 29px);
-      line-height: 1.25;
-      letter-spacing: -.035em;
-    }
-    .card h2::after {
-      content: "";
-      display: block;
-      width: 42px;
-      height: 4px;
-      margin-top: 10px;
-      border-radius: 4px;
-      background: var(--gold);
-    }
-    .download-card h2::after { margin-left: auto; margin-right: auto; }
-    .price-card h2 { color: #fff; }
-    .price-card p { color: #f1f5ef; }
-    .availability-card h2, .availability-card p { grid-column: 2; }
-    .availability-card::before { grid-column: 1; }
-    p { margin: 0 0 14px; }
-    p:last-child { margin-bottom: 0; }
-    .welcome-card p:first-of-type { font-size: 1.12rem; }
-    .features-list {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin: 18px 0 0;
-      padding: 0;
-      list-style: none;
-    }
-    .features-list li {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      min-height: 58px;
-      padding: 11px 13px;
-      border: 1px solid #e2ebde;
-      border-radius: 15px;
-      background: rgba(255,255,255,.85);
-    }
-    .features-list li::before {
-      content: "✓";
-      display: grid;
-      place-items: center;
-      flex: 0 0 27px;
-      width: 27px;
-      height: 27px;
-      border-radius: 50%;
-      background: #dfedda;
-      color: var(--forest);
-      font-weight: 900;
-    }
-    .price {
-      margin: 22px 0;
-      padding: 22px;
-      border: 2px solid #edc76e;
-      border-radius: 20px;
-      background: linear-gradient(140deg, #fff8e4, #ffedbd);
-      box-shadow: 0 10px 23px #142c1b24;
-      text-align: center;
-    }
-    .price h2 {
-      margin: 0;
-      color: #333;
-      font-size: clamp(36px, 7vw, 52px);
-    }
-    .price h2::after { display: none; }
-    .price b { color: #624b1d; font-size: 18px; }
-    .no-renew { color: #f1f5ef; }
-    .button {
-      display: block;
-      width: min(100%, 390px);
-      margin: 22px auto 0;
-      padding: 17px 24px;
-      border-radius: 15px;
-      background: var(--forest);
-      box-shadow: 0 7px 0 #d7b860, 0 14px 24px #20412e2b;
-      color: #fff;
-      font-size: 18px;
-      font-weight: 750;
-      text-align: center;
-      text-decoration: none;
-    }
-    .button:hover { background: var(--forest-dark); }
-    .button:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
-    footer {
-      margin: 0;
-      padding: 12px 18px 32px;
-      color: var(--muted);
-      font-size: .92rem;
-      text-align: center;
-    }
-    footer p { margin: 4px 0; }
-    footer p:last-child { color: var(--forest); font-weight: 700; }
-    @media (max-width: 600px) {
-      body { font-size: 16px; }
-      .hero { padding: 52px 18px 65px; }
-      .hero::before { width: 80px; height: 80px; margin-bottom: 15px; font-size: 44px; }
-      h1 { font-size: 46px; }
-      main { width: calc(100% - 22px); }
-      .card { margin: 13px 0; border-radius: 19px; }
-      .features-list { grid-template-columns: 1fr; gap: 8px; }
-      .availability-card { grid-template-columns: 38px 1fr; gap: 12px; }
-      .availability-card::before { width: 38px; height: 38px; }
-    }
-    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    :root{--green:#536650;--dark:#354134;--cream:#f4f1ea;--card:#fff;--gold:#d7a83c;--red:#9f2d26;--muted:#655f59}
+    *{box-sizing:border-box} body{margin:0;background:var(--cream);color:var(--dark);font-family:Arial,Helvetica,sans-serif;line-height:1.65}
+    .hero{padding:54px 20px 42px;text-align:center;background:linear-gradient(145deg,#40523f,#647a60);color:#fff}
+    .hero h1{margin:0;font-size:clamp(38px,8vw,68px);line-height:1}.hero p{font-size:20px;font-weight:800;margin:18px auto 0;max-width:720px}
+    .trust{display:inline-block;margin-top:24px;padding:10px 18px;border:2px solid #fff;border-radius:999px;font-weight:900}
+    .download-location{margin:0;padding:17px 20px;background:#d7a83c;color:#263326;text-align:center;font-size:20px;font-weight:900;letter-spacing:.2px}
+    .download-location span{display:block;margin-top:4px;font-size:16px}
+    main{width:min(900px,calc(100% - 32px));margin:28px auto 50px}.card{background:var(--card);border:1px solid #ded8cf;border-radius:22px;padding:clamp(22px,5vw,38px);margin:18px 0;box-shadow:0 8px 25px rgba(53,65,52,.07)}
+    h2{margin:0 0 12px;font-size:26px;color:var(--green)}h3{font-size:20px;margin:22px 0 6px}.lead{font-size:18px;font-weight:700}.big{font-size:24px;font-weight:900;color:var(--green)}
+    ul{padding-left:24px}.price{text-align:center;border:3px solid var(--gold)}.price strong{display:block;font-size:34px;color:var(--green)}
+    .notice{border-left:7px solid var(--gold)}.ios{display:none;border-left:7px solid var(--gold)}
+    .download{text-align:center;background:#edf3eb}.download-button{display:inline-flex;align-items:center;justify-content:center;min-height:58px;margin-top:12px;padding:12px 26px;border-radius:17px;background:var(--green);color:#fff;text-decoration:none;font-size:18px;font-weight:900}
+    .download-button[aria-disabled="true"]{background:#817b74;cursor:not-allowed}.small{font-size:14px;color:var(--muted)}
+    .email{font-size:18px;font-weight:900;color:var(--green)}footer{text-align:center;padding:30px 20px 45px;font-weight:900;color:var(--green)}
+    @media(max-width:560px){.hero{padding-top:38px}.card{border-radius:17px}.download-button{width:100%}}
   </style>
 </head>
 <body>
   <header class="hero">
-    <div class="hero-content">
-      <h1>ShopWithEzz</h1>
-      <p class="tagline">Shop beautifully. Spend smarter. Get Stuff Done.</p>
-      <span class="trust-note">WE BELIEVE TRUST COMES BEFORE DOWNLOADS</span>
-    </div>
+    <h1>ShopWithEzz</h1>
+    <p>Shop beautifully. Spend smarter. Get Stuff Done.</p>
+    <div class="trust">WE BELIEVE TRUST COMES BEFORE DOWNLOADS</div>
   </header>
+
+  <div id="download-location" class="download-location">
+    ANDROID DOWNLOAD AVAILABLE AT THE BOTTOM OF THIS PAGE ↓
+    <span>iPHONE &amp; iPAD VERSION COMING SOON</span>
+  </div>
+
   <main>
-    <section class="card welcome-card">
+    <section class="card">
       <h2>Welcome</h2>
-      <p><b>Thank you for your interest in ShopWithEzz.</b></p>
-      <p>Before downloading, please read what you are installing, why it was created, what it costs and what you can expect.</p>
+      <p class="lead">Thank you for your interest in ShopWithEzz.</p>
+      <p>Before downloading, please take a few moments to read this information. We believe you should know exactly what you are installing, why it was created, and what you can expect before making your decision.</p>
     </section>
-    <section class="card about-card">
+
+    <section class="card">
       <h2>About ShopWithEzz</h2>
-      <p>ShopWithEzz helps you create shopping lists, add items by typing, voice, barcode scanning or photos, track prices and watch your spending while you shop.</p>
-      <p>It is designed to make shopping less stressful and help you stay closer to your budget.</p>
+      <p>ShopWithEzz was designed to make shopping lists, budgeting and hands-free shopping simple, practical and professional.</p>
+      <p>Our goal is a clean, reliable app that is easy for everyone to use—whether you shop every day or only occasionally.</p>
+      <p class="big">To help you Get Stuff Done.</p>
     </section>
-    <section class="card features-card">
-      <h2>What You Can Do</h2>
-      <ul class="features-list">
-        <li>Create and manage shopping lists</li>
-        <li>Add items by voice, barcode or photo</li>
-        <li>Track quantities, prices and totals</li>
-        <li>Set budgets and receive budget alerts</li>
-        <li>Use help and walkthrough information</li>
-      </ul>
+
+    <section class="card">
+      <h2>Why We Built It</h2>
+      <p>Too many applications are overloaded with advertisements, subscriptions, confusing menus or features people never use. Team Lalli61 believes software should be different.</p>
+      <ul><li>Simple to use</li><li>Easy to understand</li><li>Fast and reliable</li><li>Professionally designed</li><li>Continuously improved</li></ul>
+      <p><strong>If a feature does not improve the user experience, it does not belong in the app.</strong></p>
     </section>
-    <section class="card price-card">
-      <h2>One Simple Yearly Purchase</h2>
-      <p>ShopWithEzz is a yearly purchase. All features are available for 31 days after installation.</p>
-      <p>The one-year full-access purchase can be made at any time during those 31 days in Settings for:</p>
-      <div class="price">
-        <h2>AUD $35</h2>
-        <b>About 10 cents per day.</b>
-      </div>
-      <p>The purchase includes app updates during that paid year. Access continues until the paid year ends, and another year can be purchased whenever needed.</p>
-      <p class="no-renew"><b>There is no automatic renewal.</b></p>
+
+    <section class="card notice">
+      <h2>The Granny Test</h2>
+      <p class="lead">Every Team Lalli61 application must pass our Granny Test. If something feels confusing, we redesign it.</p>
+      <p class="big">Simple is always better.</p>
     </section>
-    <section class="card availability-card">
+
+    <section class="card">
+      <h2>What You Can Expect</h2>
+      <ul><li>A clean and professional interface</li><li>Easy navigation</li><li>Shopping lists and budget help</li><li>Hands-free voice commands</li><li>Regular improvements and bug fixes</li><li>Honest communication</li><li>No unnecessary complexity</li></ul>
+    </section>
+
+    <section class="card">
       <h2>Platform Availability</h2>
-      <p>Current release: Android.</p>
-      <p>The iPhone and iPad version will be developed after it has been fully tested.</p>
+      <p><strong>Current release: Android only.</strong></p>
+      <p>The iPhone and iPad version is being developed and will be released only after it has been fully tested and approved.</p>
     </section>
-    <section class="card download-card">
-      <h2>Ready to Download?</h2>
-      <p>Continue to the separate download page to install ShopWithEzz from Google Play.</p>
-      <a class="button" href="download.html">Continue to the Download Page</a>
+
+    <section class="card price">
+      <h2>ShopWithEzz</h2>
+      <p>ShopWithEzz helps you plan and manage your shopping in one simple app.</p>
+      <p>Create shopping lists, add items quickly, track prices and budgets, scan product barcodes, import item photos, and keep useful pantry and recipe information together.</p>
+      <p><strong>ShopWithEzz is a yearly purchase.</strong> When you install ShopWithEzz, all features are available for 31 days. After that, you can purchase one year of full access in Settings for A$35, which works out to about 10 cents per day. A yearly purchase includes app updates during that paid year. You may cancel at any time, and your access continues until the end of the paid year. When that year ends, you can purchase another year whenever you choose.</p>
+      <h3>One simple payment</h3>
+      <strong>AUD $35</strong>
+      <p class="big">Less than 10 cents a day.</p>
+      <p><strong>No monthly fees. No automatic renewal.</strong></p>
+    </section>
+
+    <section class="card">
+      <h2>Privacy and Our Promise</h2>
+      <p>Your privacy is important. Team Lalli61 does not sell your personal information.</p>
+      <p>We will always be honest about what our apps do, how your information is handled and what they cost.</p>
+      <p class="big">No surprises. No hidden costs.</p>
+    </section>
+
+    <section class="card">
+      <h2>Feedback</h2>
+      <p>Every suggestion and bug report helps us improve future updates.</p>
+      <a class="email" href="mailto:lalli61apps@hotmail.com?subject=ShopWithEzz%20Feedback">lalli61apps@hotmail.com</a>
+    </section>
+
+    <section class="card">
+      <h2>Version Information</h2>
+      <p><strong>Current version:</strong> v1.1.0 (Code 13)<br><strong>Release:</strong> Google Play Closed testing — Alpha<br><strong>Platform:</strong> Android</p>
+    </section>
+
+    <section class="card notice">
+      <h2>Before You Download</h2>
+      <p>By downloading ShopWithEzz, you acknowledge that you have read and understood the information on this page.</p>
+    </section>
+
+    <section id="android-download" class="card download">
+      <h2>Become a Tester</h2>
+      <p class="lead">To test ShopWithEzz, first send us the exact email address of the Google account used in Google Play on your Android phone.</p>
+      <a class="download-button" href="mailto:lalli61apps@hotmail.com?subject=ShopWithEzz%20Tester%20Email&body=My%20name%3A%20%0A%0AMy%20Google%20Play%20account%20email%3A%20%0A%0AI%20would%20like%20to%20test%20ShopWithEzz.">SEND MY TESTER EMAIL</a>
+      <p class="small">After we add your email to the approved Google Play tester list, we will send you the private testing link so you can join and install ShopWithEzz.</p>
+      <p class="small"><strong>The Google Play install link is not available until your tester email has been approved.</strong></p>
+    </section>
+
+    <section id="ios-message" class="card ios">
+      <h2>iOS Version Coming Soon</h2>
+      <p>The iPhone and iPad version will be released once it has been fully tested.</p>
     </section>
   </main>
-  <footer>
-    <p>Page updated: 30 September 2026</p>
-    <p>Designed &amp; Created by Team Lalli61<br>GSD — Get Stuff Done</p>
-  </footer>
+
+  <footer>Designed &amp; Created by Team Lalli61<br>GSD — Get Stuff Done</footer>
+
+  <script>
+    const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if(isiOS){
+      document.getElementById("android-download").style.display="none";
+      document.getElementById("ios-message").style.display="block";
+      document.getElementById("download-location").innerHTML="iPHONE &amp; iPAD VERSION COMING SOON<span>Thank you for your patience and support.</span>";
+    }
+  </script>
 </body>
 </html>

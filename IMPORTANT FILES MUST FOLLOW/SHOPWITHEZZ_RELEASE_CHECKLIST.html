@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShopWithEzz Release Checklist</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:760px;margin:0 auto;padding:24px;background:#f7faf7;color:#203326}h1{color:#173b25}h2{margin-top:28px;color:#42634a}.item{display:flex;gap:12px;align-items:flex-start;background:white;border:1px solid #d9e4da;border-radius:12px;padding:14px;margin:9px 0;font-size:16px}.item input{width:21px;height:21px;accent-color:#4c8b5b}.item.done{text-decoration:line-through;color:#78907d;background:#eef6ef}.bar{position:sticky;top:0;background:#f7faf7;padding:10px 0;border-bottom:1px solid #d9e4da;font-weight:bold}button{padding:10px 14px;border:0;border-radius:9px;background:#789f7c;color:white;font-weight:bold;cursor:pointer;float:right}
+</style>
+</head>
+<body>
+<div class="bar"><span id="progress">0 completed</span><button onclick="resetAll()">Reset</button></div>
+<h1>ShopWithEzz Release Checklist</h1>
+<p>Tap each box only after we test and confirm it.</p>
+<h2>App testing</h2>
+<div id="app"></div>
+<h2>Google Play release</h2>
+<div id="release"></div>
+<script>
+const groups={app:[
+['Walkthrough appears on a fresh start.','walkthrough-fresh'],['Walkthrough Skip, Next and Done work.','walkthrough-buttons'],['Walkthrough can be opened again from How to Use.','walkthrough-reopen'],['Home wording is correct and has no customer-facing “trial” wording.','home-wording'],['Add, edit, save and reload a shopping-list item.','item-save'],['Changing price updates ACTUAL AMOUNT.','actual-amount'],['Changing quantity to 3, 4 and 5 updates the total.','quantity'],['SHOPPING LIST TOTAL remains correct after reopening the app.','list-total'],['Keyboard does not hide name or price fields.','keyboard'],['Photo/Import opens the normal edit screen before saving.','photo-edit'],['Scanner works and Add/Edit has no barcode control.','scanner'],['Over-budget money-rain alert still works.','budget-alert'],['Pantry, Recipes and Settings work.','other-screens'],['Backup/Restore works, if that real screen is present.','backup'],['Important checks pass on the real Android phone.','phone']
+],release:[
+['Final yearly A$35 wording is confirmed in the Play Console listing.','play-wording'],['Next unused Play version code is confirmed.','version-code'],['Upload keystore certificate matches Play Console.','signing'],['Tested source is C:\\SWE2.','source'],['New AAB is built only after phone checks pass.','build'],['AAB package, version code and signing certificate are verified.','aab-check'],['AAB is uploaded to the existing Closed testing — Alpha track.','upload'],['Play processing shows the correct ShopWithEzz release.','processing'],['Release is rolled out to existing testers.','rollout'],['At least 12 testers remain opted in for 14 days; aim for 15.','testers'],['Tester feedback and fixes are recorded.','feedback'],['Production access is requested only after the testing requirement is complete.','production']
+]};
+function render(){let count=0,total=0;for(const [group,items] of Object.entries(groups)){const el=document.getElementById(group);el.innerHTML='';for(const [label,id] of items){total++;const checked=localStorage.getItem('swe-'+id)==='1';if(checked)count++;const row=document.createElement('label');row.className='item'+(checked?' done':'');row.innerHTML=`<input type="checkbox" ${checked?'checked':''}> <span>${label}</span>`;row.querySelector('input').onchange=e=>{localStorage.setItem('swe-'+id,e.target.checked?'1':'0');render()};el.appendChild(row)}}document.getElementById('progress').textContent=`${count} of ${total} completed`}
+function resetAll(){if(confirm('Reset the checklist?')){Object.values(groups).flat().forEach(([,id])=>localStorage.removeItem('swe-'+id));render()}}render();
+</script>
+</body>
+</html>

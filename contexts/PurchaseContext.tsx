@@ -33,7 +33,11 @@ export function PurchaseProvider({children}:PropsWithChildren){
     let isActive = true;
     const updatedSubscription = purchaseUpdatedListener(purchase=>{
       void (async()=>{
-        if(purchase.productId !== FULL_UNLOCK_PRODUCT_ID || purchase.purchaseState !== "purchased"){return;}
+        if(purchase.productId !== FULL_UNLOCK_PRODUCT_ID){return;}
+        if(purchase.purchaseState !== "purchased"){
+          if(isActive){setIsPurchasing(false);}
+          return;
+        }
         try{
           await grantUnlock(purchase);
           await finishTransaction({purchase,isConsumable:false});
@@ -45,7 +49,13 @@ export function PurchaseProvider({children}:PropsWithChildren){
         }
       })();
     });
-    const errorSubscription = purchaseErrorListener(()=>{if(isActive){setIsPurchasing(false);}});
+    const errorSubscription = purchaseErrorListener(error=>{
+      if(!isActive){return;}
+      setIsPurchasing(false);
+      if(error.code !== "E_USER_CANCELLED"){
+        Alert.alert("Purchase Unavailable", error.message || "Google Play could not complete the purchase.");
+      }
+    });
 
     void (async()=>{
       try{
@@ -84,8 +94,9 @@ export function PurchaseProvider({children}:PropsWithChildren){
       await initConnection();
       const restored = await refreshPlayPurchase();
       Alert.alert(restored ? "Purchase Restored" : "No Purchase Found", restored ? "Your permanent Google Play unlock is active." : "No ShopWithEzz unlock was found for this Google Play account.");
-    }catch{
-      Alert.alert("Restore Unavailable", "Install ShopWithEzz from Google Play, then try Restore Purchase again.");
+    }catch(error){
+      const message = error instanceof Error ? error.message : "Google Play could not check your purchases.";
+      Alert.alert("Restore Unavailable", message);
     }finally{
       setIsPurchasing(false);
     }

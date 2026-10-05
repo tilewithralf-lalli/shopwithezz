@@ -244,7 +244,22 @@ export default function HomeScreen(){
     useState<{id:string;name:string;itemCount:number} | null>(null);
 
   useEffect(()=>{
-    setWalkthroughVisible(true);
+    let cancelled = false;
+
+    AsyncStorage.getItem(WALKTHROUGH_SEEN_KEY)
+      .then(seen => {
+        if (!cancelled && seen !== "1") {
+          setWalkthroughStep(0);
+          setWalkthroughVisible(true);
+        }
+      })
+      .catch(error => {
+        console.log("WALKTHROUGH STATE ERROR:", error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   },[]);
 
   function closeWalkthrough(){
