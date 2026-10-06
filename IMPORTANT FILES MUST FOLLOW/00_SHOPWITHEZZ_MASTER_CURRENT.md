@@ -1,3 +1,47 @@
+# 🚨 NEXT STEP ON THE WINDOWS PC — SHOPWITHEZZ CODE 16 🚨
+
+**Updated: 7 October 2026 — READ THIS FIRST. This is the immediate next job and overrides older stopping points below.**
+
+## Confirmed problem
+
+- Google Play Code 15 / version 1.1.1 is live, but it contains the wrong/old ShopWithEzz build.
+- The installed Play Store app is missing the approved Home-screen Team Lalli61 footer.
+- The Settings footer is still the old version and is wrong.
+- The GitHub app source currently visible is also not the confirmed final source: `app.json` still records version 1.1.0 / code 15, Settings contains old 28 August 2026 footer information, and it still contains old permanent-unlock/no-subscription wording.
+- **Do not build Code 16 from the current GitHub source and do not reuse any old AAB.**
+
+## Exact PC job
+
+1. Open the real finished ShopWithEzz project in `C:\\SWE2` that produced the correct phone-tested app.
+2. Before changing or building anything, confirm on the real Android phone that this exact project has:
+   - the approved Team Lalli61 footer on the Home screen;
+   - the corrected Team Lalli61 footer in Settings;
+   - the correct 31-day access and A$34.99 purchase wording;
+   - the full working ShopWithEzz screens and features.
+3. Compare that confirmed PC project against GitHub. Replace/update GitHub only from the confirmed project, preserving the complete source.
+4. Check Play Console release history. Code 15 is used. The replacement build must use the next unused code, expected to be **Code 16**.
+5. Set the replacement version to **version 1.1.2 / Code 16**, unless Play Console shows a later unused code is required.
+6. Confirm package `com.lalli61.shopwithezz` and verify the upload-keystore certificate against Play Console App integrity.
+7. Build a fresh AAB only from the confirmed correct project. Inspect the AAB and verify package, version name, version code, signing certificate and correct app identity before uploading.
+8. Upload the verified AAB as the replacement Google Play release.
+9. Replace the old Google Play **What's new** billing/restoration wording with exactly:
+
+> Before installing ShopWithEzz, please read the complete app information, pricing and download page:  
+> https://tilewithralf-lalli.github.io/shopwithezz/
+
+10. Submit the release, wait for Google review, install it from the public Play listing on the real phone, and verify both footers and the complete app before calling it fixed.
+
+## Public download page status
+
+- Live page: https://tilewithralf-lalli.github.io/shopwithezz/
+- Official Play listing: https://play.google.com/store/apps/details?id=com.lalli61.shopwithezz
+- The public page has been restored and links to Google Play.
+- Price corrected to **AUD $34.99 — about 9.6 cents per day**.
+- GitHub page restoration commit: `2f5de75c7b9843d6d5e5af26075b659642357680`.
+- GitHub price-correction commit: `ad2cfe78489a13132673a64e9f5e5527b1241bd2`.
+
+---
+
 **🚨 RELEASE PREFLIGHT — READ BEFORE ANY BUILD OR UPLOAD 🚨**
 
 **GOOGLE-FIRST RULE FOR ALL APPS:** Read `00_GOOGLE_FIRST_APP_SETUP_ORDER.md` completely before any Google Play upload, release, product, billing, testing, or publishing action.
@@ -11,6 +55,14 @@ For every app, there must be one clearly identified live public information/down
 # SHOPWITHEZZ — ONE MASTER HANDOVER
 
 ## CURRENT STATUS UPDATE — 5 OCTOBER 2026
+
+### END-OF-DAY STOPPING POINT — 5 OCTOBER 2026
+
+- The GitHub root `index.html` now shows a temporary update notice while the Google Play update is being reviewed.
+- The download option is intentionally removed for now so visitors cannot download the older published app.
+- Obsolete GitHub `Download page/index.html` and `Download page/download.html` files were removed.
+- GitHub commit for the temporary notice: `72d7fc6`.
+- Resume by restoring the verified Google Play destination only after the current app update is approved and the live listing is checked.
 
 - Google Play version code **15 (version 1.1.1)** is the current release in review.
 - Do not describe Code 15 as publicly available until Play Console confirms publication.
