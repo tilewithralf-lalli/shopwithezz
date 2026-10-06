@@ -1,5 +1,7 @@
 **🚨 RELEASE PREFLIGHT — READ BEFORE ANY BUILD OR UPLOAD 🚨**
 
+**GOOGLE-FIRST RULE FOR ALL APPS:** Read `00_GOOGLE_FIRST_APP_SETUP_ORDER.md` completely before any Google Play upload, release, product, billing, testing, or publishing action.
+
 **Check the actual Google Play release history first. Record the highest uploaded version code, set the next unused code in the project files, verify package ID, release keystore, Kotlin/Gradle/dependencies, product ID and TypeScript, and only then give or run the build command. Never guess.**
 
 ## PUBLIC PAGE RULE — ALL TEAM LALLI61 APPS
