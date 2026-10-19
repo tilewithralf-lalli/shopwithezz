@@ -1545,3 +1545,66 @@ The existing **How to Use** guide already provides help, but the first-install w
 
 
 
+
+
+---
+
+## CURRENT COMPARE MY LIST PLAN — 19 OCTOBER 2026
+
+### Purpose
+
+Compare My List will let a user send a complete shopping list together with a required location, such as a suburb, postcode or shopping centre. ShopWithEzz will return a clearly labelled comparison of nearby stores and available prices.
+
+### Agreed technical route
+
+1. The Android app sends the list and location to the secure server.
+2. The server uses the OpenAI API key stored only as a server environment secret.
+3. The server sends the request through the OpenAI Responses API with the web-search tool enabled.
+4. The search is limited to the requested location and suitable nearby retailers.
+5. The server returns structured results to ShopWithEzz.
+6. The app displays each item, store, pack size, price, source link, search time and verification status.
+7. The user can choose one store, split the list between stores, or keep the current list.
+
+### Required result rules
+
+- Match the exact product and pack size wherever possible.
+- Show the retailer and location used for the result.
+- Do not guess a price when a product, pack size or store match is uncertain.
+- If a price cannot be verified, show **Price unavailable / not verified**.
+- ALDI must not be shown as selling a branded product unless ALDI publicly lists that exact product.
+- Show the source link and the time the result was checked.
+- Make clear that prices and stock can change.
+
+### Server implementation
+
+- The server file is on the Windows PC in the original ShopWithEzz comparison project at `C:\SWE2\_COMPARE_MY_LIST\server`.
+- Confirm the existing `server.js` and local page first.
+- Keep the API key out of GitHub, the Android app, screenshots and this master file.
+- Add request validation, timeouts, error handling, usage limits and a hard spending ceiling before user testing.
+- Do not expose the API key to users or send requests directly from the phone.
+
+### Proof-before-release sequence
+
+1. Run the existing server locally on the PC.
+2. Test one exact product with its pack size against official Woolworths and Coles pages for the selected location.
+3. Repeat the same search several times and record the result, source, price and time.
+4. Test a small mixed list only after the single-product test is dependable.
+5. Connect the Android app to the server only after the proof passes.
+6. Do not publish Compare My List as a working feature until the phone test returns correct results.
+7. Keep the current app unchanged while this feature is being proved.
+
+### Cost control
+
+- Use the existing API key and current credits only for controlled testing.
+- No new credit purchase is approved without Ralf's explicit approval.
+- Start with one product and one location.
+- Stop testing immediately if results are unreliable or spending is higher than expected.
+- Record every test and its result in this master file.
+
+### Current status
+
+- **Plan:** approved.
+- **Server location:** confirmed on the Windows PC; not yet inspected or connected in this session.
+- **API connection:** key created, but the server integration is not yet verified.
+- **Live comparison:** not yet passed.
+- **Next action:** on the Windows PC, inspect and run the existing server project, then perform the one-product controlled proof.
