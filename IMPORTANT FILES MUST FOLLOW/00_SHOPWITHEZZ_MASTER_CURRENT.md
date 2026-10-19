@@ -1,4 +1,95 @@
+# SHOPWITHEZZ PROMOTION AND OUTREACH RECORD — 11 OCTOBER 2026
+
+This is the current record of where ShopWithEzz has been promoted, submitted or directly introduced. Keep this section at the top of the master and update the status when a reply, approval or listing goes live.
+
+## Public promotion and directory submissions
+
+- **Facebook:** Ralf posted ShopWithEzz from his own Facebook account and confirmed the links work.
+- **Product Hunt:** ShopWithEzz launch listing created. Launch scheduled for **11 October 2026 at 12:01 AM PDT**. The two approved real-phone screenshots are the Home screen and My List screen recorded immediately below this section.
+- **AppsApk:** Free Android-app listing request submitted successfully through the official AppsApk submission/contact form. Confirmation received: **“Thank you for your message. It has been sent.”**
+- **LibraryOfApps:** Full ShopWithEzz listing submitted while signed in with `lalli61apps@hotmail.com`. Status shown after submission: **Submitted — pending review.** Listing details used: Android mobile app, version 1.1.1, 31 days of full access followed by A$35 for one year, official information page and Google Play link.
+- **TryMy.App:** Free-listing submission details sent directly to the public TryMy.App contact `Mark@Reinventing.AI` after the secure browser form would not reopen. The message included the ShopWithEzz information page, Google Play link, maker name, tagline, description, Mobile category and 31-day full-access offer. **Status: submitted by email — awaiting human review/confirmation.**
+
+## Direct business and influencer outreach
+
+All confirmed emails below were sent from `lalli61apps@hotmail.com` and saved in Sent Items.
+
+- **Kylie Cosmetics / Kylie Jenner team:** Proposal sent to the verified public contact `customerservice@kyliecosmetics.com`. It requested an app review, honest feedback or a suitable promotional collaboration.
+- **Boost Juice Australia:** ShopWithEzz collaboration proposal sent to the verified public contact `boost@boostjuice.com.au`.
+- **Janine Allis:** A separate personal message addressed to Janine was sent through `boost@boostjuice.com.au` with a clear request for the Boost Juice team to forward it to her. It introduced both ShopWithEzz and the developing TastyBook app and asked for honest advice, feedback or a small mention.
+- **LMCT+ / Adrian Portelli:** The verified public business channel found was `support@lmctplus.com`. Check Sent Items before any follow-up and do not assume Adrian personally received or read a message unless a reply confirms it.
+
+## Approved promotion links
+
+- Information and download page: `https://tilewithralf-lalli.github.io/shopwithezz/`
+- Google Play: `https://play.google.com/store/apps/details?id=com.lalli61.shopwithezz`
+
+## Follow-up rule
+
+- Do not repeatedly message the same person or company.
+- Wait for a reply before sending more information unless a reasonable follow-up period has passed.
+- Record every response, approval, rejection, listing URL and follow-up date in this section.
+- Never claim that a directory listing is live while it is still pending review.
+
+---
+
+# APPROVED PRODUCT HUNT SCREENSHOTS — 11 OCTOBER 2026
+
+The following two screenshots were created on the real Android phone and approved by Ralf for the ShopWithEzz Product Hunt launch and future promotion:
+
+1. **ShopWithEzz Home screen** — shows the full Home screen, logo, shopping list, spending/budget section, Scanner, Photo Item / Import Photo, How to Use and Team Lalli61 footer.
+2. **ShopWithEzz My List screen** — shows a working shopping list with item prices, total, budget warning, Share List and Scan Item.
+
+Drive image files:
+- `SHOPWITHEZZ_APPROVED_HOME_SCREEN_11_OCTOBER_2026.jpeg`
+- `SHOPWITHEZZ_APPROVED_MY_LIST_SCREEN_11_OCTOBER_2026.jpeg`
+
+**These are the approved promotional screenshots. Use both together. Do not substitute the earlier poor cropped Product Hunt webpage images.**
+
+---
+
 # 🚨 NEXT STEP ON THE WINDOWS PC — SHOPWITHEZZ CODE 16 🚨
+
+# CURRENT FINAL STORE AND PAYMENT STATUS — 11 OCTOBER 2026
+
+This is the newest confirmed ShopWithEzz status and overrides older payment/test-card stopping points in this master.
+
+## Completed today
+
+- The public ShopWithEzz information/download page was checked and corrected.
+- Duplicate Google Play wording was removed so the detailed information stays in **About this app** and **What's new** remains short.
+- The public page date was corrected to **10 October 2026**.
+- The customer wording is **A$35 for one year of full access**, about **10 cents per day**, with **no automatic renewal**.
+- Google Play displays the customer checkout price as **A$34.99** because its price-charming system converts the entered A$35 price to A$34.99.
+- The ShopWithEzz Google Play purchase option is **Active** for real purchases.
+- Google Play handles the payment using the customer's own saved card, PayPal or Google Play balance. PayPal is available only if the customer has added it to their Google account.
+- The transaction showing **Test card, always approves** was confirmed as a license-test transaction; no real money was taken for that test order.
+- The test transaction date and order number must always be compared with any separate receipt before deciding whether another order was also a test.
+- In **Google Play Console → Settings → License testing**, the **ShopWithEzz internal tester** email list was unticked and the change was saved.
+- The paid Testing Community is separate and was not affected.
+- Disabling license testing did not deactivate the real ShopWithEzz product.
+- License testing can be enabled again at any time by ticking the internal tester list and saving.
+
+## Current expected behaviour
+
+1. A normal customer taps the purchase button.
+2. Google Play shows the real checkout at **A$34.99**.
+3. The customer chooses one of their own Google Play payment methods.
+4. Google Play processes and reports the real payment through the Team LALLI61 developer account.
+5. The app must grant one year of full access, keep access until the paid year ends, support restore purchase and allow another purchase after expiry.
+
+## Final verification still required
+
+- Allow time for Google Play to refresh after the license-testing change.
+- Use an account that is not a license tester and open the payment sheet.
+- Confirm **Test card, always approves** no longer appears.
+- Confirm the real saved payment method and A$34.99 checkout appear.
+- Do not approve another real payment merely to inspect the screen.
+- Keep the product **Active**.
+
+**Important:** Google Play product activation is confirmed. The one-year expiry, restore and repurchase behaviour remains controlled by the app and must stay verified in the released code.
+
+---
 
 **Updated: 7 October 2026 — READ THIS FIRST. This is the immediate next job and overrides older stopping points below.**
 
@@ -323,7 +414,7 @@ If the source/build does not match that app, **do not build or upload it as Code
 
 ## STORE DESCRIPTION DECISION RECORDED
 
-The saved handoff says the store description should avoid the words **trial**, **locked**, **limited access**, **full version**, and **unlocked**. The intended wording recorded in the handoff is:
+The saved handoff says the store description should avoid the words **locked**, **limited access**, **full version**, and **unlocked**. The intended wording recorded in the handoff is:
 
 > ShopWithEzz helps you plan and manage your shopping in one simple app.
 >
@@ -624,7 +715,7 @@ Use the Windows PC with USB phone tethering, as previously planned.
 
 ## Store description text intended for ShopWithEzz
 
-The user does not want the words “trial”, “locked”, “limited access”, “full version”, or “unlocked” in the store description.
+The user does not want the words “locked”, “limited access”, “full version”, or “unlocked” in the store description.
 
 ```text
 ShopWithEzz helps you plan and manage your shopping in one simple app.
@@ -1159,7 +1250,7 @@ Do not wait for the paid Apple Developer account before starting iOS work. The f
 
 ## Required wording
 
-Avoid the word **trial**. Use the saved 31-day unlocked wording and show the one-time purchase price as **A$34.99**.
+Use the saved 31-day access wording and show the one-time purchase price as **A$34.99**.
 
 ## Do not claim yet
 
@@ -1196,3 +1287,261 @@ The existing **How to Use** guide already provides help, but the first-install w
 
 
 **File updated: 5 October 2026**
+
+
+
+---
+
+# COMPARE MY LIST — FAILED TESTS AND NEXT PROOF
+
+**Updated: 17 October 2026**
+
+## What we learned from the earlier attempts
+
+- We tried several ways to compare supermarket prices, but **we did not prove a reliable live comparison for a complete shopping list**.
+- Some proposed routes depended on paid APIs, search credits or ongoing costs. Those do not fit the low-cost approach agreed for ShopWithEzz.
+- The key unresolved problem is not whether product pages exist. It is whether a test can repeatedly identify the **right product, exact pack size, selected retailer/store and current price** without guessing.
+- A public page or flyer search result alone is not proof that the result is current for the user's nearby store.
+- Keep the original PC proof-of-concept and its existing files for the later build session. Do not restart from a new template or use the later V16/V3 experiments as the baseline.
+
+## Agreed next test — when the build session starts
+
+1. Use the original PC project at `C:\SWE2\_COMPARE_MY_LIST\server`.
+2. First confirm its local page and `server.js` run as expected.
+3. Test one exact product (start with Nescafé Gold, including its pack size) against official public retailer pages, beginning with Woolworths and Coles.
+4. Use the selected location/postcode and record the retailer link, product name, pack size, displayed price and test time.
+5. Repeat the same test several times. Count it as a pass only when the match and price are correct each time.
+6. If the page blocks access, the store location cannot be verified, the product match is uncertain, or the price cannot be read reliably, show **Price unavailable / not verified**. Do not guess or silently substitute another product.
+7. Test ALDI separately: compare an exact brand only when ALDI lists that exact product; otherwise label the ALDI result clearly as an equivalent with its own pack size and price.
+8. Only after the one-product test is dependable, expand to a small mixed list and then consider integration into ShopWithEzz.
+
+## Cost and scope
+
+- No paid API, search credits, cloud hosting or recurring service is approved for this proof.
+- Use free local tools already available for the PC test.
+- Do not change the released ShopWithEzz app while this remains a proof-of-concept.
+- No automated price comparison has passed yet. This section records the honest status and the test to run later.
+
+---
+
+## SHOPWITHEZZ OUTREACH CAMPAIGN — 17 OCTOBER 2026
+
+**Overall status:** 15 personalised outreach attempts were sent from `tilewithralf@gmail.com` across 14 contacts. The original Beanstalk Single Mums address returned an immediate delivery failure, and the same message was resent to its current alternative address. Fourteen messages have not returned an immediate delivery failure.
+
+| # | Organisation | Contact email | Outreach purpose | Status |
+|---:|---|---|---|---|
+| 1 | Simple Savings | `info@simplesavings.com.au` | Review ShopWithEzz and consider sharing it with their money-saving community | Sent successfully |
+| 2 | The Thrifty Issue | `admin@thethriftyissue.com.au` | Try the app and consider a review or feature | Sent successfully |
+| 3 | Mumpower | `admin@mumpower.com.au` | Real-family product testing and feedback | Sent successfully |
+| 4 | Motherpedia | `natalie.chan@motherpedia.com.au` | Consider a review, listing or feature | Sent successfully |
+| 5 | Baby Hints & Tips | `advertising@babyhintsandtips.com` | Family-focused review or partnership opportunity | Sent successfully |
+| 6 | Bounty Parents | `info@bountyparents.com.au` | Consider ShopWithEzz for their product-review process | Sent successfully |
+| 7 | Mouths of Mums / WOM Network | `nikki@womnetwork.com.au` | Community review and user-generated feedback | Sent successfully |
+| 8 | Families Magazine | `editor@familiesmagazine.com.au` | Gold Coast / South-East Queensland review or editorial mention | Sent successfully |
+| 9 | Northern Beaches Mums | `info@northernbeachesmums.com.au` | Review, directory listing or affordable promotional opportunity | Sent successfully |
+| 10 | Beanstalk Single Mums | Original: `lucy@beanstalkmums.com.au`; replacement: `elle@beanstalkmums.au` | Honest review, feature or affordable introduction to their community | Original failed (5.1.1); resent to replacement address on 17 October 2026 |
+| 11 | MUMS.net.au | `office@newscompany.com` | Route ShopWithEzz to the appropriate editorial or commercial contact for a review or feature | Sent successfully |
+| 12 | Melville Mums | `hello@melvillemums.com.au` | Review, business/advertising post or affordable community promotion | Sent successfully |
+| 13 | Kylie / Kylie Jenner team via LMCT+ | `support@lmctplus.com` | App review, honest feedback, social demonstration or possible promotional collaboration | Sent successfully |
+| 14 | Janine Allis via Boost Juice | `boost@boostjuice.com.au` | Request honest feedback or advice about ShopWithEzz and TastyBook and ask the team to forward it to Janine | Sent successfully |
+
+### Next actions
+
+- Monitor the inbox for replies and respond promptly to genuine interest.
+- Record each reply, requested conditions, pricing and agreed next step in this master file.
+- Do not approve paid promotions or financial commitments without Ralf's approval.
+- If there is no response, send one polite follow-up after 7–10 business days.
+- Avoid duplicate outreach to these contacts unless following up on the original email.
+- Do not resend to `lucy@beanstalkmums.com.au`; it returned status code 5.1.1. The outreach was resent to `elle@beanstalkmums.au` on 17 October 2026.
+
+---
+
+## SHOPWITHEZZ OUTREACH — SECOND INTERNET SEARCH BATCH — 17 OCTOBER 2026
+
+**Verified result:** 21 new personalised emails were sent from `tilewithralf@gmail.com`. Together with the earlier outreach, the running record is 36 email attempts across 35 organisations/contacts. One earlier Beanstalk address failed and was replaced successfully.
+
+| # | Organisation | Email used | Main purpose | Status |
+|---:|---|---|---|---|
+| 1 | The Cost of Living Australia | `hello@thecostofliving.com.au` | Cost-of-living editorial review or mention | Sent |
+| 2 | Mum Australia | `hello@mum.com.au` | Parent-product editorial review | Sent |
+| 3 | Women Love Tech | `editor@womenlovetech.com` | App review, smart-living feature or founder story | Sent |
+| 4 | EFTM | `editor@eftm.com` | Independent Australian technology review | Sent |
+| 5 | SavingsRoom | `media@savingsroom.com` | Family-budget review, mention or partnership | Sent |
+| 6 | Mum's Money | `hello@mumsmoney.com` | Family budgeting review or feature | Sent |
+| 7 | Secrets of a Busy Mum | `hello@secretsofabusymum.com` | Product review or social mention | Sent |
+| 8 | Your Boys & Mine | `info@yourboysandmine.com.au` | Family-focused app review | Sent |
+| 9 | The Cooking Collective | `hello@thecookingcollective.com.au` | Busy-family review or collaboration | Sent |
+| 10 | Tot Hot or Not | `collaborate@tothotornot.com` | Editorial family-service review | Sent |
+| 11 | Gold Coast Innovation Hub | `team@gchub.com.au` | Startup directory and local showcase | Sent |
+| 12 | Gold Coast Journal | `frankie@goldcoastjournal.com` | Local founder or business feature | Sent |
+| 13 | Gold Coast Directory | `news@goldcoastdirectory.com` | Industry news and free-listing enquiry | Sent |
+| 14 | InGoldCoast | `contact@ingoldcoast.com` | Free local business listing | Sent |
+| 15 | Simple Living Australia | `contactus@simplelivingaustralia.com.au` | Practical-living review or content collaboration | Sent |
+| 16 | Mums & Bubs | `hello@mumsandbubs.com.au` | Australian parenting product feature | Sent |
+| 17 | The Cook's Pyjamas | `tania@thecookspyjamas.com` | Family food and shopping app review | Sent |
+| 18 | Scout Magazine | `publisher@scoutmagazine.com.au` | Gold Coast founder story or local launch feature | Sent |
+| 19 | Stay at Home Mum | `info@stayathomemum.com.au` | Editorial feedback or affordable entry-level exposure | Sent; no paid commitment |
+| 20 | Business News Australia | `marketing@businessnewsaustralia.com` | Gold Coast founder journey or no-cost editorial route | Sent; no paid commitment |
+| 21 | Gadgiq | `press@gadgiq.com` | Independent Android app review | Sent |
+
+### Website-form opportunities not yet submitted
+
+- Pickr — editorial contact form.
+- Tech Geek — app-review contact form.
+- Gold Coast Current — free business-directory submission form.
+
+### Control rules
+
+- Do not send duplicate introductions to any contact listed above.
+- Record all replies, prices, requirements and next actions.
+- Do not accept or pay for advertising without Ralf's approval.
+- One polite follow-up may be sent after 7–10 business days if there is no reply.
+
+---
+
+## SHOPWITHEZZ INTERNATIONAL EMAIL OUTREACH — 17 OCTOBER 2026
+
+**Verified result:** 25 personalised international outreach emails were sent from `tilewithralf@gmail.com`. No website forms were submitted and no paid services were authorised. Running campaign total: 61 email attempts across 60 organisations/contacts; one earlier Beanstalk address failed and was replaced.
+
+| # | Organisation | Email used | Focus | Status |
+|---:|---|---|---|---|
+| 1 | Talk Android | `peter.h@talkandroid.com` | Independent Android app review | Sent |
+| 2 | AndroidPure | `avinash@androidpure.com` | Android review or release feature | Sent |
+| 3 | Droid Turf | `admin@droidturf.com` | Android app review | Sent |
+| 4 | AppViewable | `service@appviewable.com` | App discovery feature or review | Sent |
+| 5 | AndroidB | `info@androidb.com` | Android review and discovery coverage | Sent |
+| 6 | The Android News | `ma@theandroidnews.com` | App review or release feature | Sent |
+| 7 | TheGreatApps | `info@thegreatapps.com` | Android review or listing | Sent |
+| 8 | TwistyApps | `info@twistyapps.com` | Independent app review | Sent |
+| 9 | Tapscape | `support@tapscape.com` | Standard editorial review only | Sent; no paid review authorised |
+| 10 | Twin Cities Frugal Mom | `twincitiesfrugalmom@gmail.com` | Money-saving family review | Sent |
+| 11 | The Budget Mom | `kumiko@thebudgetmom.com` | Shopping-budget community consideration | Sent |
+| 12 | Mom Knows It All | `valmg2@gmail.com` | Family-friendly technology review | Sent |
+| 13 | Mum on a Budget UK | `nicola@mumonabudget.co.uk` | Family-budget product review | Sent |
+| 14 | Funky Frugal Mommy | `amandageering@hotmail.com` | Frugal-family product review | Sent |
+| 15 | Home With Aneta | `homewithaneta@gmail.com` | Canadian family app review | Sent |
+| 16 | This West Coast Mommy | `olivia@thiswestcoastmommy.com` | Family lifestyle review | Sent |
+| 17 | Extreme Couponing Mom | `info@extremecouponingmom.ca` | Money-saving app review | Sent |
+| 18 | Canadian Mom Reviews | `info@canadianmomreviews.com` | Mobile-app review | Sent |
+| 19 | My Family Stuff | `info@mybabystuff.ca` | Family product and app review | Sent |
+| 20 | Parent Club Canada | `info@parentclub.ca` | Busy-family technology collaboration | Sent |
+| 21 | Perfect Day To Play | `ask@perfectdaytoplay.com` | Family app/software review | Sent |
+| 22 | Canadian Family | `business@canadianfamily.net` | Product profile or family review | Sent |
+| 23 | BC Mom | `hello@bcmom.ca` | Family-friendly app feature | Sent |
+| 24 | Carents UK | `hello@carents.co.uk` | Shared-shopping resource for carers and families | Sent |
+| 25 | Aging With Family | `info@agingwithfamily.com` | Resource for families supporting older relatives | Sent |
+
+### International campaign rules
+
+- Email outreach only; no website forms were submitted.
+- Do not send duplicate introductions to these contacts.
+- Do not authorise expedited reviews, sponsorships, advertising or other payments without Ralf's approval.
+- Record replies, quotes, requirements and next actions.
+- One polite follow-up may be sent after 7–10 business days if there is no response.
+
+---
+
+## COUNTRY-BY-COUNTRY ENGLISH-MARKET OUTREACH — 17 OCTOBER 2026
+
+**Verified result:** 23 additional emails were sent to fill the New Zealand, Ireland, South Africa and Singapore gaps. No website forms were submitted and no paid promotion was authorised. Running total: 84 email attempts across 83 organisations/contacts; one earlier Beanstalk address failed and was replaced.
+
+### New Zealand
+
+| Organisation | Email | Status |
+|---|---|---|
+| Happy Mum Happy Child | `maria@happymumhappychild.com` | Sent |
+| TechDay | `editors@techday.com` | Sent |
+| The Tech Shed NZ | `thetechshed16@gmail.com` | Sent |
+
+### Ireland
+
+| Organisation | Email | Status |
+|---|---|---|
+| Bump, Baby & Me | `hello@bumpbabyandme.ie` | Sent |
+| Cuddle Fairy | `hello@cuddlefairy.com` | Sent |
+| Irish Tech News | `info@irishtechnews.ie` | Sent |
+
+### South Africa
+
+| Organisation | Email | Status |
+|---|---|---|
+| Ruan Scheepers | `ruan@ruanscheepers.co.za` | Sent |
+| PrettyBelle | `info@prettybelle.co.za` | Sent |
+| Inspired Living SA | `fiona@inspiredlivingsa.co.za` | Sent |
+| What WayD Says | `info@whatwaydsays.co.za` | Sent |
+| Rattle and Mum / Tanya Kovarsky | `tanya@tanyakovarsky.com` | Sent |
+| ListenToSA | `hello@listentosa.co.za` | Sent |
+| TechBrunch | `reviews@techbrunch.co.za` | Sent |
+| Technology Blog South Africa | `tech@technologyblog.co.za` | Sent |
+| Gadget / World Wide Worx | `sheryl@worldwideworx.com` | Sent |
+| Recharged | `info@recharged.co.za` | Sent |
+| TechCentral | `duncan@techcentral.co.za` | Sent |
+
+### Singapore and wider Asian English-language media
+
+| Organisation | Email | Status |
+|---|---|---|
+| Techgoondu | `contact@techgoondu.com` | Sent |
+| Tech in Asia | `editors@techinasia.com` | Sent |
+| Asia Tech Review | `jon@asiatechreview.com` | Sent |
+| Good Goods Review | `hello@goodgoods.sg` | Sent |
+| App Comrade | `hello@appcomrade.com` | Sent |
+| Techiadd | `editorial@techiadd.it.com` | Sent |
+
+### Coverage now established
+
+- Australia
+- New Zealand
+- United Kingdom
+- Ireland
+- United States
+- Canada
+- South Africa
+- Singapore / wider English-language Asian technology media
+
+### Rules
+
+- Email outreach only; do not submit website forms.
+- Do not duplicate introductions.
+- Do not approve paid reviews, advertising or sponsorship without Ralf's approval.
+- Record all replies and follow-up requirements.
+
+---
+
+## 100-CONTACT MILESTONE OUTREACH — 17 OCTOBER 2026
+
+**Verified result:** 17 additional personalised emails were sent successfully, bringing the campaign to **100 unique organisations/contacts**. The campaign record now contains **101 total email attempts**, including the earlier failed Beanstalk address that was replaced with a working contact. No website forms were submitted and no paid promotion was authorised.
+
+| # | Organisation | Email | Market | Status |
+|---:|---|---|---|---|
+| 1 | The Diary of a Frugal Family | `cass@frugalfamily.co.uk` | United Kingdom | Sent |
+| 2 | Budgeting Mum | `beth@budgetingmum.co.uk` | United Kingdom | Sent |
+| 3 | Baby Budgeting | `becky@babybudgeting.co.uk` | United Kingdom | Sent |
+| 4 | Frugal Mum | `hello@frugalmum.co.uk` | United Kingdom | Sent |
+| 5 | Family Budget Ideas | `team@familybudgetideas.com` | United Kingdom | Sent |
+| 6 | Savings 4 Savvy Mums | `savingsforsavvymums@gmail.com` | United Kingdom | Sent |
+| 7 | Budget Mum Soph | `sophie@budgetmumsoph.co.uk` | United Kingdom | Sent |
+| 8 | Katie Saves | `hello@katiesaves.com` | United Kingdom | Sent |
+| 9 | Rhian Westbury | `westburyrhian@gmail.com` | United Kingdom | Sent |
+| 10 | Looking After Your Pennies | `charlotte@lookingafteryourpennies.com` | United Kingdom | Sent |
+| 11 | Much More With Less | `hello@muchmorewithless.co.uk` | United Kingdom | Sent |
+| 12 | The New Stay-at-Home Mom | `hello@thenewstayathomemom.com` | United States | Sent |
+| 13 | Jessi Fearon | `admin@jessifearon.com` | United States | Sent |
+| 14 | Thrifty Little Mom | `KimAndersonConsult@gmail.com` | United States | Sent |
+| 15 | More With Less Mom | `morewithlessmom@gmail.com` | United States | Sent |
+| 16 | Saving You Dinero | `savingyoudinero@gmail.com` | United States | Sent |
+| 17 | Frugal Mom Eh! | `info@frugalmomeh.com` | Canada | Sent |
+
+### Final campaign position
+
+- 100 unique organisations/contacts reached
+- 101 total email attempts recorded
+- 100 successful send actions; one earlier address failed and was replaced
+- Email outreach only; no website forms used
+- No advertising, sponsorship, paid review or other payment authorised
+- Next action: monitor replies and send one polite follow-up after 7–10 business days where appropriate
+
+
+
+
+
